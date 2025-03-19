@@ -1,17 +1,20 @@
 package com.cosmo.psmp.entities.client;
 
+import com.cosmo.psmp.PSMP;
 import com.cosmo.psmp.entities.client.PumpkinGuyAnimations;
 import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 
 // Made with Blockbench 4.12.3
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
 public class PumpkinGuyModel<T extends PumpkinGuyEntity> extends SinglePartEntityModel<T> {
-	
+	public static final EntityModelLayer PUMPKINGUY = new EntityModelLayer(Identifier.of(PSMP.MOD_ID,"pumpkin_guy"),"main");
 
 	private final ModelPart Main;
 	private final ModelPart Body;
