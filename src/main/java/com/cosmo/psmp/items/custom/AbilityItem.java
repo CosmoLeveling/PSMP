@@ -24,13 +24,15 @@ public class AbilityItem extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        if(world.isClient){
         for (int i = 0; i <= 3; i++){
             if (Objects.equals(user.getAttached(YOUR_ATTACHMENT_TYPE).stringList().get(i), "None")) {
                 ModCustomAttachedData data = user.getAttachedOrElse(YOUR_ATTACHMENT_TYPE, ModCustomAttachedData.DEFAULT);
                 user.setAttached(YOUR_ATTACHMENT_TYPE, data.setString(i, AbilityName));
                 user.getStackInHand(hand).decrementUnlessCreative(1,user);
+                return TypedActionResult.success(user.getStackInHand(hand),true);
             }
-            return TypedActionResult.success(user.getStackInHand(hand),true);
+        }
         }
         return super.use(world, user, hand);
     }

@@ -2,6 +2,7 @@ package com.cosmo.psmp;
 
 import com.cosmo.psmp.commands.arguments.AbilityArgumentType;
 import com.cosmo.psmp.entities.PSMPEntities;
+import com.cosmo.psmp.entities.custom.MelonGuyEntity;
 import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import com.cosmo.psmp.items.PSMPItems;
 import com.cosmo.psmp.networking.SpawnMobPayload;
@@ -93,9 +94,15 @@ public class PSMP implements ModInitializer {
 							SpawnReason.TRIGGERED).setOwner(player);
 					player.getMainHandStack().setCount(player.getMainHandStack().getCount()-1);
 				}
+				if (Objects.equals(player.getMainHandStack().getItem(),Items.MELON)){
+					PSMPEntities.MELON_GUY.spawn((ServerWorld) context.player().getWorld(), context.player().getBlockPos(),
+							SpawnReason.TRIGGERED).setOwner(player);
+					player.getMainHandStack().setCount(player.getMainHandStack().getCount()-1);
+				}
 			});
 		}));
 		FabricDefaultAttributeRegistry.register(PSMPEntities.PUMPKIN_GUY, PumpkinGuyEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(PSMPEntities.MELON_GUY, MelonGuyEntity.createAttributes());
 		PSMPItems.registerItems();
 		PSMPEntities.registerEntities();
 	}

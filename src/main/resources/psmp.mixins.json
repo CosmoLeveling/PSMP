@@ -3,6 +3,7 @@
 	"package": "com.cosmo.psmp.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"ArmorItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

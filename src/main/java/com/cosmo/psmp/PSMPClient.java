@@ -2,6 +2,8 @@ package com.cosmo.psmp;
 
 import com.cosmo.psmp.client.AbilityHudOverlay;
 import com.cosmo.psmp.entities.PSMPEntities;
+import com.cosmo.psmp.entities.client.MelonGuyModel;
+import com.cosmo.psmp.entities.client.MelonGuyRenderer;
 import com.cosmo.psmp.entities.client.PumpkinGuyModel;
 import com.cosmo.psmp.entities.client.PumpkinGuyRenderer;
 import com.cosmo.psmp.event.KeyInputHandler;
@@ -17,6 +19,8 @@ public class PSMPClient implements ClientModInitializer {
         KeyInputHandler.registerKeyInputs();
         EntityModelLayerRegistry.registerModelLayer(PumpkinGuyModel.PUMPKINGUY,PumpkinGuyModel::getTexturedModelData);
         EntityRendererRegistry.register(PSMPEntities.PUMPKIN_GUY, PumpkinGuyRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(MelonGuyModel.MELONGUY,MelonGuyModel::getTexturedModelData);
+        EntityRendererRegistry.register(PSMPEntities.MELON_GUY, MelonGuyRenderer::new);
         HudRenderCallback.EVENT.register(new AbilityHudOverlay());
 
     }

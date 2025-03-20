@@ -1,6 +1,7 @@
 package com.cosmo.psmp.entities.behaviours;
 
 import com.cosmo.psmp.PSMP;
+import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -17,7 +18,7 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class SetAttackTargetToOwnerAttackTarget<E extends TameableEntity> extends ExtendedBehaviour<E> {
+public class SetAttackTargetToOwnerAttackTarget<E extends MinionEntity> extends ExtendedBehaviour<E> {
     private static final List<Pair<MemoryModuleType<?>, MemoryModuleState>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryModuleState.VALUE_ABSENT), Pair.of(MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleState.VALUE_PRESENT));
 
     protected Predicate<? extends LivingEntity> targetPredicate = entity -> true;
@@ -42,27 +43,21 @@ public class SetAttackTargetToOwnerAttackTarget<E extends TameableEntity> extend
 
     @Override
     protected boolean doStartCheck(ServerWorld level, E tameable, long gameTime) {
-        if (tameable.getOwner() != null) {
-            if (tameable.isTamed() && !tameable.isSitting()) {
-                LivingEntity livingEntity = tameable.getOwner();
-                if (livingEntity == null) {
-                    return false;
-                } else {
-                    LivingEntity attacking = livingEntity.getAttacking();
-                    if (attacking != null) {
-                        int lastAttackTime = attacking.getLastAttackTime();
-                        int i = livingEntity.getLastAttackTime();
-                        return i != lastAttackTime && tameable.canAttackWithOwner(attacking, livingEntity);
-                    } else {
-                        return false;
-                    }
-                }
-            } else {
-                return false;
-            }
-        } else {
+        if (!tameable.hasSword() || tameable.getOwner() == null || !tameable.isTamed() || tameable.isSitting()) {
             return false;
         }
+
+        LivingEntity livingEntity = tameable.getOwner();
+        LivingEntity attacking = livingEntity.getAttacking();
+
+        if (attacking == null) {
+            return false;
+        }
+
+        int lastAttackTime = attacking.getLastAttackTime();
+        int ownerAttackTime = livingEntity.getLastAttackTime();
+
+        return lastAttackTime != ownerAttackTime && tameable.canAttackWithOwner(attacking, livingEntity);
     }
     @Override // Actually handle the function of the behaviour here
     protected void start(E entity) {

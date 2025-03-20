@@ -1,5 +1,6 @@
 package com.cosmo.psmp.entities.behaviours;
 
+import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -14,7 +15,7 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class SetAttackTargetToAttacker<E extends TameableEntity> extends ExtendedBehaviour<E> {
+public class SetAttackTargetToAttacker<E extends MinionEntity> extends ExtendedBehaviour<E> {
     private static final List<Pair<MemoryModuleType<?>, MemoryModuleState>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryModuleState.VALUE_ABSENT), Pair.of(MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleState.VALUE_PRESENT));
 
     protected Predicate<? extends LivingEntity> targetPredicate = entity -> true;
@@ -35,6 +36,11 @@ public class SetAttackTargetToAttacker<E extends TameableEntity> extends Extende
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryModuleState>> getMemoryRequirements() {
         return MEMORY_REQUIREMENTS;
+    }
+
+    @Override
+    protected boolean doStartCheck(ServerWorld level, E entity, long gameTime) {
+        return entity.hasSword();
     }
 
     @Override // Actually handle the function of the behaviour here

@@ -5,28 +5,13 @@ import com.cosmo.psmp.entities.behaviours.PickupItemBehaviour;
 import com.cosmo.psmp.entities.behaviours.SetAttackTargetToAttacker;
 import com.cosmo.psmp.entities.behaviours.SetAttackTargetToOwnerAttackTarget;
 import com.cosmo.psmp.entities.behaviours.SetRandomWalkTargetTamed;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.brain.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.PassiveEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
@@ -54,8 +39,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<PumpkinGuyEntity> {
-    public PumpkinGuyEntity(EntityType<? extends TameableEntity> entityType, World world) {
+public class MelonGuyEntity extends MinionEntity implements SmartBrainOwner<MelonGuyEntity> {
+    public MelonGuyEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
     }
 
@@ -70,15 +55,15 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
 
     @Override
     public @Nullable PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
-        PumpkinGuyEntity pumpkinGuyEntity = PSMPEntities.PUMPKIN_GUY.create(world);
-        if (pumpkinGuyEntity != null && entity instanceof PumpkinGuyEntity pumpkinGuyEntity1) {
+        MelonGuyEntity melonGuyEntity = PSMPEntities.MELON_GUY.create(world);
+        if (melonGuyEntity != null && entity instanceof MelonGuyEntity pumpkinGuyEntity1) {
             if (this.isTamed()) {
-                pumpkinGuyEntity.setOwnerUuid(this.getOwnerUuid());
-                pumpkinGuyEntity.setTamed(true, true);
+                melonGuyEntity.setOwnerUuid(this.getOwnerUuid());
+                melonGuyEntity.setTamed(true, true);
             }
         }
 
-        return pumpkinGuyEntity;
+        return melonGuyEntity;
     }
 
     public boolean canBreedWith(AnimalEntity other) {
@@ -86,15 +71,15 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
             return false;
         } else if (!this.isTamed()) {
             return false;
-        } else if (!(other instanceof PumpkinGuyEntity pumpkinGuyEntity)) {
+        } else if (!(other instanceof MelonGuyEntity melonGuyEntity)) {
             return false;
         } else {
-            if (!pumpkinGuyEntity.isTamed()) {
+            if (!melonGuyEntity.isTamed()) {
                 return false;
-            } else if (pumpkinGuyEntity.isInSittingPose()) {
+            } else if (melonGuyEntity.isInSittingPose()) {
                 return false;
             } else {
-                return this.isInLove() && pumpkinGuyEntity.isInLove();
+                return this.isInLove() && melonGuyEntity.isInLove();
             }
         }
     }
@@ -106,7 +91,7 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
     }
 
     @Override
-    public List<? extends ExtendedSensor<? extends PumpkinGuyEntity>> getSensors() {
+    public List<? extends ExtendedSensor<? extends MelonGuyEntity>> getSensors() {
         return List.of(
                 new NearbyItemsSensor<>(),
                 new NearbyLivingEntitySensor<>(),
@@ -117,7 +102,7 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
     }
 
     @Override
-    public BrainActivityGroup<? extends PumpkinGuyEntity> getCoreTasks() {
+    public BrainActivityGroup<? extends MelonGuyEntity> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new BreedWithPartner<>(),
                 new LookAtTarget<>(),
@@ -127,14 +112,14 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
     }
 
     @Override
-    public BrainActivityGroup<? extends PumpkinGuyEntity> getIdleTasks() {
+    public BrainActivityGroup<? extends MelonGuyEntity> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
                         new SetAttackTargetToOwnerAttackTarget<>(),
                         new SetAttackTargetToAttacker<>(),
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
-                new OneRandomBehaviour<PumpkinGuyEntity>(
+                new OneRandomBehaviour<MelonGuyEntity>(
                         new PickupItemBehaviour<>(),
                         new SetRandomWalkTargetTamed<>(),
                         new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(30,60) )
@@ -143,7 +128,7 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
     }
 
     @Override
-    public BrainActivityGroup<? extends PumpkinGuyEntity> getFightTasks() {
+    public BrainActivityGroup<? extends MelonGuyEntity> getFightTasks() {
         return BrainActivityGroup.fightTasks(
                 new InvalidateAttackTarget<>(),
                 new SetWalkTargetToAttackTarget<>(),
