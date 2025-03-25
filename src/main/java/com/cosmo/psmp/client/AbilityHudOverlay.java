@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.Objects;
 
-import static com.cosmo.psmp.PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE;
+import static com.cosmo.psmp.PSMPAttachmentTypes.ABILITIES;
 
 public class AbilityHudOverlay implements HudRenderCallback {
     private static final Identifier Gui = Identifier.of(PSMP.MOD_ID,
@@ -37,23 +37,35 @@ public class AbilityHudOverlay implements HudRenderCallback {
         RenderSystem.setShaderTexture(0, Gui);
         drawContext.drawTexture(Gui,0,y-48,0,0,48,48,
                 48,48);
-        ModCustomAttachedData data = client.player.getAttachedOrElse(YOUR_ATTACHMENT_TYPE,ModCustomAttachedData.DEFAULT);
-        client.player.setAttached(YOUR_ATTACHMENT_TYPE, data);
-        if (!Objects.equals(client.player.getAttached(YOUR_ATTACHMENT_TYPE).stringList().get(0), "None")) {
-            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID,"textures/gui/abilities/"+client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(0)+".png"),6,y-42,0,0,16,16,
-                    16,16);
+        ModCustomAttachedData data = client.player.getAttachedOrElse(ABILITIES,ModCustomAttachedData.DEFAULT);
+        client.player.setAttached(ABILITIES, data);
+        if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(0), "None")) {
+            draw_Ability(0,client,drawContext,6,y-42);
         }
-        if (!Objects.equals(client.player.getAttached(YOUR_ATTACHMENT_TYPE).stringList().get(1), "None")) {
-            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID,"textures/gui/abilities/"+client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(1)+".png"),26,y-42,0,0,16,16,
-                    16,16);
+        if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(1), "None")) {
+            draw_Ability(1,client,drawContext,26,y-42);
         }
-        if (!Objects.equals(client.player.getAttached(YOUR_ATTACHMENT_TYPE).stringList().get(2), "None")) {
-            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID,"textures/gui/abilities/"+client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(2)+".png"),6,y-22,0,0,16,16,
-                    16,16);
+        if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(2), "None")) {
+            draw_Ability(2,client,drawContext, 6, y-22);
         }
-        if (!Objects.equals(client.player.getAttached(YOUR_ATTACHMENT_TYPE).stringList().get(3), "None")) {
-            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID,"textures/gui/abilities/"+client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(3)+".png"),26,y-22,0,0,16,16,
-                    16,16);
+        if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(3), "None")) {
+            draw_Ability(3,client,drawContext,26,y-22);
+        }
+    }
+    private void draw_Ability(int slot, MinecraftClient client, DrawContext drawContext, int x,int y) {
+        if(client.player.getAttached(ABILITIES).stringList().get(slot).contains("copy")){
+            if(Objects.equals(client.player.getAttached(ABILITIES).stringList().get(slot), "copy")) {
+                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
+                        16, 16);
+            }else{
+                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).replace("_copy","") + ".png"),  x, y, 0, 0, 16, 16,
+                        16, 16);
+                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/copy_outline.png"), x, y, 0, 0, 16, 16,
+                        16, 16);
+            }
+        }else {
+            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
+                    16, 16);
         }
     }
 }

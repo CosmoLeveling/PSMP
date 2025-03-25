@@ -3,7 +3,12 @@
 	"package": "com.cosmo.psmp.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ArmorItemMixin"
+		"ArmorItemMixin",
+		"LivingEntityMixin"
+	],
+	"client": [
+		"client.EntityRenderDispatchMixin",
+		"client.LivingEntityRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

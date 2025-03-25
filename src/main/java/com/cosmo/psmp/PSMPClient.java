@@ -7,13 +7,17 @@ import com.cosmo.psmp.entities.client.MelonGuyRenderer;
 import com.cosmo.psmp.entities.client.PumpkinGuyModel;
 import com.cosmo.psmp.entities.client.PumpkinGuyRenderer;
 import com.cosmo.psmp.event.KeyInputHandler;
+import com.cosmo.psmp.networking.PhaseUpdateS2CPacket;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
-public class PSMPClient implements ClientModInitializer {
+import java.util.HashSet;
+import java.util.UUID;
 
+public class PSMPClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         KeyInputHandler.registerKeyInputs();
@@ -22,6 +26,7 @@ public class PSMPClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(MelonGuyModel.MELONGUY,MelonGuyModel::getTexturedModelData);
         EntityRendererRegistry.register(PSMPEntities.MELON_GUY, MelonGuyRenderer::new);
         HudRenderCallback.EVENT.register(new AbilityHudOverlay());
+        //S2C
 
     }
 }

@@ -1,7 +1,7 @@
 package com.cosmo.psmp.entities.custom;
 
 import com.cosmo.psmp.PSMP;
-import com.cosmo.psmp.entities.PSMPEntities;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.FoodComponent;
@@ -18,17 +18,23 @@ import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -36,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class MinionEntity extends TameableEntity implements InventoryOwner{
+public class MinionEntity extends TameableEntity implements InventoryOwner {
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
     private final SimpleInventory inventory = new SimpleInventory(9);
@@ -52,7 +58,6 @@ public class MinionEntity extends TameableEntity implements InventoryOwner{
     @Override
     protected void loot(ItemEntity item) {
         if(this.hasBackpack()) {
-            PSMP.LOGGER.info("Looting");
             ItemStack itemStack = item.getStack();
             ItemStack itemStack1 = calculatePickedUpStack(itemStack);
             if (!itemStack1.isEmpty()) {
@@ -65,6 +70,9 @@ public class MinionEntity extends TameableEntity implements InventoryOwner{
                 }
             }
         }
+    }
+    public boolean areInventoriesDifferent(Inventory inventory) {
+        return this.inventory != inventory;
     }
     public ItemStack calculatePickedUpStack(ItemStack itemStack) {
         ItemStack returnedStack =ItemStack.EMPTY;
@@ -87,7 +95,6 @@ public class MinionEntity extends TameableEntity implements InventoryOwner{
                 }
             }
         }
-        PSMP.LOGGER.info(returnedStack.toString());
         return returnedStack;
     }
     public static DefaultAttributeContainer.Builder createAttributes() {
@@ -174,7 +181,10 @@ public class MinionEntity extends TameableEntity implements InventoryOwner{
         Item item = itemStack.getItem();
         if (!this.getWorld().isClient || this.isBaby() && this.isBreedingItem(itemStack)) {
             if (this.isTamed()) {
-                if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
+                if (player.shouldCancelInteraction()) {
+                    this.openInventory(player);
+                    return ActionResult.success(this.getWorld().isClient);
+                }else if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
                     itemStack.decrementUnlessCreative(1, player);
                     FoodComponent foodComponent = (FoodComponent) itemStack.get(DataComponentTypes.FOOD);
                     float f = foodComponent != null ? (float) foodComponent.nutrition() : 1.0F;
@@ -228,7 +238,17 @@ public class MinionEntity extends TameableEntity implements InventoryOwner{
             return bl ? ActionResult.CONSUME : ActionResult.PASS;
         }
     }
-
+    public void openInventory(PlayerEntity player) {
+        if (!this.getWorld().isClient && this.isTamed() && this.isOwner(player)) {
+            for (int i = 0; i < this.inventory.size(); ++i) {
+                ItemStack itemStack = this.inventory.getStack(i);
+                if (!itemStack.isEmpty() && !EnchantmentHelper.hasAnyEnchantmentsWith(itemStack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP)) {
+                    this.dropStack(itemStack);
+                    inventory.removeStack(i);
+                }
+            }
+        }
+    }
     private void tryTame(PlayerEntity player) {
         if (this.random.nextInt(3) == 0) {
             this.setOwner(player);

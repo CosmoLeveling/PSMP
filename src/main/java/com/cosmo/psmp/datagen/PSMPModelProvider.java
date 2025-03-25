@@ -19,6 +19,7 @@ public class PSMPModelProvider extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-        itemModelGenerator.register(PSMPItems.test, Models.GENERATED);
+        itemModelGenerator.register(PSMPItems.fertilize, Models.GENERATED);
+        itemModelGenerator.register(PSMPItems.summonMinion, Models.GENERATED);
     }
 }

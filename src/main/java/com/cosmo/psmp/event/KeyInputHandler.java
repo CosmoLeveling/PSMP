@@ -1,17 +1,28 @@
 package com.cosmo.psmp.event;
 
 import com.cosmo.psmp.PSMPAttachmentTypes;
+import com.cosmo.psmp.commands.arguments.AbilityArgumentType;
 import com.cosmo.psmp.networking.ChangeSizePayload;
+import com.cosmo.psmp.networking.FertilizePayload;
+import com.cosmo.psmp.networking.PhasePayload;
 import com.cosmo.psmp.networking.SpawnMobPayload;
+import com.cosmo.psmp.util.ModCustomAttachedData;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
+
+import static com.cosmo.psmp.PSMPAttachmentTypes.ABILITIES;
 
 
 public class KeyInputHandler {
@@ -56,10 +67,39 @@ public class KeyInputHandler {
         });
     }
     private static void cast_ability(Integer slot, MinecraftClient client) {
-        if(Objects.equals(client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(slot), "summon_minion")){
-            ClientPlayNetworking.send(new SpawnMobPayload(client.player.getBlockPos()));
-        }else if(Objects.equals(client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(slot), "grow_size")||Objects.equals(client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(slot), "reset_size")||Objects.equals(client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(slot), "shrink_size")){
-            ClientPlayNetworking.send(new ChangeSizePayload(client.player.getAttached(PSMPAttachmentTypes.YOUR_ATTACHMENT_TYPE).stringList().get(slot),slot));
+        if(client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("copy")) {
+            if (client.player.isSneaking()) {
+                ModCustomAttachedData data = client.player.getAttachedOrElse(ABILITIES,ModCustomAttachedData.DEFAULT);
+                if (data.stringList().get(slot).contains("size")){
+                    client.player.getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1);
+                }
+                client.player.setAttached(ABILITIES, data.setString(slot,"copy"));
+            }else{
+                if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("summon_minion")) {
+                    ClientPlayNetworking.send(new SpawnMobPayload(client.player.getBlockPos()));
+                } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("size")) {
+                    ClientPlayNetworking.send(new ChangeSizePayload(client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot), slot));
+                } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("fertilize")) {
+                    ClientPlayNetworking.send(new FertilizePayload(client.player.getBlockPos()));
+                } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("phase")) {
+                    ClientPlayNetworking.send(new PhasePayload(true));
+                } else {
+                    if (client.targetedEntity instanceof PlayerEntity) {
+                        ModCustomAttachedData data = client.player.getAttachedOrElse(ABILITIES, ModCustomAttachedData.DEFAULT);
+                        client.player.setAttached(ABILITIES, data.setString(slot, client.targetedEntity.getAttached(ABILITIES).stringList().get(0) + "_copy"));
+                    }
+                }
+            }
+        }else{
+            if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("summon_minion")) {
+                ClientPlayNetworking.send(new SpawnMobPayload(client.player.getBlockPos()));
+            } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("size")) {
+                ClientPlayNetworking.send(new ChangeSizePayload(client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot), slot));
+            } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("fertilize")) {
+                ClientPlayNetworking.send(new FertilizePayload(client.player.getBlockPos()));
+            } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("phase")) {
+                ClientPlayNetworking.send(new PhasePayload(true));
+            }
         }
     }
 }
