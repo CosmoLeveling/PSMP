@@ -38,6 +38,7 @@ public class PSMP implements ModInitializer {
 		PSMPCommands.register();
 		Abilities.register();
 		PSMPItems.registerItems();
+		PSMPScreenHandlers.init();
 		PSMPEntities.registerEntities();
 		PSMPEffects.registerEffects();
 

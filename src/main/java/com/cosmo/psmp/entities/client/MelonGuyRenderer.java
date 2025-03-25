@@ -7,6 +7,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 
 import java.util.Objects;
@@ -19,18 +20,18 @@ public class MelonGuyRenderer extends MobEntityRenderer<MelonGuyEntity,MelonGuyM
 
     @Override
     public Identifier getTexture(MelonGuyEntity entity) {
-        if (Objects.equals(entity.getARMOR(), "Leather")) {
-                return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_leather.png");
-        } else if (Objects.equals(entity.getARMOR(), "Iron")) {
-                return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_iron.png");
-        } else if (Objects.equals(entity.getARMOR(), "Chain")) {
-                return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_chain.png");
-        } else if (Objects.equals(entity.getARMOR(), "Gold")) {
-                return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_gold.png");
-        } else if (Objects.equals(entity.getARMOR(), "Diamond")) {
-                return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_diamond.png");
-        } else if (Objects.equals(entity.getARMOR(), "Netherite")) {
-                return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_netherite.png");
+        if (entity.getInventory().getStack(10).isOf(Items.LEATHER_HELMET)) {
+            return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_leather.png");
+        } else if (entity.getInventory().getStack(10).isOf(Items.IRON_HELMET)) {
+            return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_iron.png");
+        } else if (entity.getInventory().getStack(10).isOf(Items.CHAINMAIL_HELMET)) {
+            return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_chain.png");
+        } else if (entity.getInventory().getStack(10).isOf(Items.GOLDEN_HELMET)) {
+            return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_gold.png");
+        } else if (entity.getInventory().getStack(10).isOf(Items.DIAMOND_HELMET)) {
+            return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_diamond.png");
+        } else if (entity.getInventory().getStack(10).isOf(Items.NETHERITE_HELMET)) {
+            return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy_netherite.png");
         } else {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/melon_guy/melon_guy.png");
         }

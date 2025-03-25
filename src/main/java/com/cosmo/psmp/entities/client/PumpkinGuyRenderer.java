@@ -9,6 +9,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 
 import java.util.Objects;
@@ -21,17 +22,17 @@ public class PumpkinGuyRenderer extends MobEntityRenderer<PumpkinGuyEntity,Pumpk
 
     @Override
     public Identifier getTexture(PumpkinGuyEntity entity) {
-        if (Objects.equals(entity.getARMOR(), "Leather")) {
+        if (entity.getARMOR().isOf(Items.LEATHER_HELMET)) {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy_leather.png");
-        } else if (Objects.equals(entity.getARMOR(), "Iron")) {
+        } else if (entity.getARMOR().isOf(Items.IRON_HELMET)) {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy_iron.png");
-        } else if (Objects.equals(entity.getARMOR(), "Chain")) {
+        } else if (entity.getARMOR().isOf(Items.CHAINMAIL_HELMET)) {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy_chain.png");
-        } else if (Objects.equals(entity.getARMOR(), "Gold")) {
+        } else if (entity.getARMOR().isOf(Items.GOLDEN_HELMET)) {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy_gold.png");
-        } else if (Objects.equals(entity.getARMOR(), "Diamond")) {
+        } else if (entity.getARMOR().isOf(Items.DIAMOND_HELMET)) {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy_diamond.png");
-        } else if (Objects.equals(entity.getARMOR(), "Netherite")) {
+        } else if (entity.getARMOR().isOf(Items.NETHERITE_HELMET)) {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy_netherite.png");
         } else {
             return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy.png");
