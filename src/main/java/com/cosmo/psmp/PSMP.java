@@ -1,11 +1,14 @@
 package com.cosmo.psmp;
 
 import com.cosmo.psmp.commands.PSMPCommands;
+import com.cosmo.psmp.effects.PSMPEffects;
 import com.cosmo.psmp.entities.PSMPEntities;
 import com.cosmo.psmp.entities.custom.MelonGuyEntity;
 import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import com.cosmo.psmp.items.PSMPItems;
 import com.cosmo.psmp.networking.*;
+import com.cosmo.psmp.screen.PSMPScreenHandlers;
+import com.cosmo.psmp.util.Abilities;
 import com.cosmo.psmp.util.PSMPLootTableModifiers;
 import net.fabricmc.api.ModInitializer;
 

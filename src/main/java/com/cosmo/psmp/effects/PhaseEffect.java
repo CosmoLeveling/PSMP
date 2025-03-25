@@ -1,28 +1,13 @@
-package com.cosmo.psmp;
+package com.cosmo.psmp.effects;
 
-import com.cosmo.psmp.commands.arguments.AbilityArgumentType;
-import com.cosmo.psmp.util.ModCustomAttachedData;
 import com.cosmo.psmp.util.ModCustomEntityAttachedData;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 
-import static com.cosmo.psmp.PSMPAttachmentTypes.ABILITIES;
 import static com.cosmo.psmp.PSMPAttachmentTypes.ENTITIES;
 
 public class PhaseEffect extends StatusEffect {

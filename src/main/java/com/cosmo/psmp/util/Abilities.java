@@ -1,11 +1,12 @@
-package com.cosmo.psmp;
+package com.cosmo.psmp.util;
 
+import com.cosmo.psmp.PSMP;
+import com.cosmo.psmp.effects.PSMPEffects;
 import com.cosmo.psmp.entities.PSMPEntities;
 import com.cosmo.psmp.networking.ChangeSizePayload;
 import com.cosmo.psmp.networking.FertilizePayload;
 import com.cosmo.psmp.networking.PhasePayload;
 import com.cosmo.psmp.networking.SpawnMobPayload;
-import com.cosmo.psmp.util.ModCustomAttachedData;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.entity.SpawnReason;
@@ -18,7 +19,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.Objects;

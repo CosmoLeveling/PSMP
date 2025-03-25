@@ -1,5 +1,6 @@
-package com.cosmo.psmp;
+package com.cosmo.psmp.effects;
 
+import com.cosmo.psmp.PSMP;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffects;

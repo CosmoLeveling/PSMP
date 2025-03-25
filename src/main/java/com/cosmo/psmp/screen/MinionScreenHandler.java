@@ -1,15 +1,12 @@
 package com.cosmo.psmp.screen;
 
-import com.cosmo.psmp.PSMPScreenHandlers;
 import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.cosmo.psmp.networking.IntPayload;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
 
 public class MinionScreenHandler extends ScreenHandler {

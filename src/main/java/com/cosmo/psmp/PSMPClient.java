@@ -7,18 +7,13 @@ import com.cosmo.psmp.entities.client.MelonGuyRenderer;
 import com.cosmo.psmp.entities.client.PumpkinGuyModel;
 import com.cosmo.psmp.entities.client.PumpkinGuyRenderer;
 import com.cosmo.psmp.event.KeyInputHandler;
-import com.cosmo.psmp.networking.PhaseUpdateS2CPacket;
 import com.cosmo.psmp.screen.MinionScreen;
+import com.cosmo.psmp.screen.PSMPScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 public class PSMPClient implements ClientModInitializer {
     @Override

@@ -67,6 +67,7 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
                 }
             }
         }
+        this.inventory.markDirty();
     }
     public boolean areInventoriesDifferent(Inventory inventory) {
         return this.inventory != inventory;

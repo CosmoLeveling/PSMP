@@ -1,7 +1,7 @@
 package com.cosmo.psmp.mixin;
 
 
-import com.cosmo.psmp.PSMPEffects;
+import com.cosmo.psmp.effects.PSMPEffects;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.registry.entry.RegistryEntry;
