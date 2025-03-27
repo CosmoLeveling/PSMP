@@ -1,7 +1,7 @@
 package com.cosmo.psmp.entities.client.feature;
 
 import com.cosmo.psmp.entities.client.PumpkinGuyModel;
-import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
+import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.google.common.collect.Maps;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
@@ -24,7 +24,7 @@ import net.minecraft.util.math.ColorHelper;
 
 import java.util.Map;
 
-public class PumpkinArmorFeature<T extends PumpkinGuyEntity, M extends PumpkinGuyModel<T>> extends FeatureRenderer<T, M> {
+public class PumpkinArmorFeature<T extends MinionEntity, M extends PumpkinGuyModel<T>> extends FeatureRenderer<T, M> {
     private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = Maps.<String, Identifier>newHashMap();
     private final M ArmorModel;
     private final SpriteAtlasTexture armorTrimsAtlas;

@@ -4,8 +4,7 @@ import com.cosmo.psmp.blocks.PSMPBlocks;
 import com.cosmo.psmp.commands.PSMPCommands;
 import com.cosmo.psmp.effects.PSMPEffects;
 import com.cosmo.psmp.entities.PSMPEntities;
-import com.cosmo.psmp.entities.custom.MelonGuyEntity;
-import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
+import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.cosmo.psmp.items.PSMPItems;
 import com.cosmo.psmp.networking.*;
 import com.cosmo.psmp.screen.PSMPScreenHandlers;
@@ -15,7 +14,6 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.minecraft.util.math.BlockPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +33,8 @@ public class PSMP implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(WarpPayload.ID, WarpPayload.CODEC);
 
 		//Entity Attributes
-		FabricDefaultAttributeRegistry.register(PSMPEntities.PUMPKIN_GUY, PumpkinGuyEntity.createAttributes());
-		FabricDefaultAttributeRegistry.register(PSMPEntities.MELON_GUY, MelonGuyEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(PSMPEntities.PUMPKIN_GUY, MinionEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(PSMPEntities.MELON_GUY, MinionEntity.createAttributes());
 
 		//register classes
 		PSMPLootTableModifiers.modifyLootTables();

@@ -1,6 +1,8 @@
 package com.cosmo.psmp.entities.custom;
 
 import com.cosmo.psmp.PSMP;
+import com.cosmo.psmp.entities.PSMPEntities;
+import com.cosmo.psmp.entities.behaviours.*;
 import com.cosmo.psmp.networking.IntPayload;
 import com.cosmo.psmp.screen.MinionScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -9,6 +11,8 @@ import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -37,11 +41,34 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.tslat.smartbrainlib.api.SmartBrainOwner;
+import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
+import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
+import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
+import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
+import net.tslat.smartbrainlib.api.core.sensor.custom.NearbyItemsSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearestItemSensor;
+import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Set;
 
-public class MinionEntity extends TameableEntity implements InventoryChangedListener,InventoryOwner, ExtendedScreenHandlerFactory<IntPayload> {
+public class MinionEntity extends TameableEntity implements SmartBrainOwner<MinionEntity>,InventoryChangedListener,InventoryOwner, ExtendedScreenHandlerFactory<IntPayload> {
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
     private final SimpleInventory items = new SimpleInventory(14);
@@ -54,6 +81,36 @@ public class MinionEntity extends TameableEntity implements InventoryChangedList
     public MinionEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
         this.setCanPickUpLoot(true);
+    }
+
+    @Override
+    public @Nullable PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
+        MinionEntity minionEntity = PSMPEntities.PUMPKIN_GUY.create(world);
+        if (minionEntity != null && entity instanceof MinionEntity minionEntity1) {
+            if (this.isTamed()) {
+                minionEntity.setOwnerUuid(this.getOwnerUuid());
+                minionEntity.setTamed(true, true);
+            }
+        }
+
+        return minionEntity;
+    }
+    public boolean canBreedWith(AnimalEntity other) {
+        if (other == this) {
+            return false;
+        } else if (!this.isTamed()) {
+            return false;
+        } else if (!(other instanceof MinionEntity minionEntity)) {
+            return false;
+        } else {
+            if (!minionEntity.isTamed()) {
+                return false;
+            } else if (minionEntity.isInSittingPose()) {
+                return false;
+            } else {
+                return this.isInLove() && minionEntity.isInLove();
+            }
+        }
     }
     @Override
     protected void loot(ItemEntity item) {
@@ -192,6 +249,15 @@ public class MinionEntity extends TameableEntity implements InventoryChangedList
         return this.items.getStack(9);
     }
 
+    @Override
+    protected void mobTick() {
+        if(!isMobSitting()) {
+            tickBrain(this);
+        }else{
+            BrainUtils.clearMemories(brain, MemoryModuleType.ATTACK_TARGET);
+        }
+    }
+
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack itemStack = player.getStackInHand(hand);
         Item item = itemStack.getItem();
@@ -267,24 +333,7 @@ public class MinionEntity extends TameableEntity implements InventoryChangedList
         }
 
     }
-    public boolean canBreedWith(AnimalEntity other) {
-        if (other == this) {
-            return false;
-        } else if (!this.isTamed()) {
-            return false;
-        } else if (!(other instanceof MinionEntity)) {
-            return false;
-        } else {
-            MinionEntity minionEntity = (MinionEntity) other;
-            if (!minionEntity.isTamed()) {
-                return false;
-            } else if (minionEntity.isInSittingPose()) {
-                return false;
-            } else {
-                return this.isInLove() && minionEntity.isInLove();
-            }
-        }
-    }
+
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         super.initDataTracker(builder);
@@ -462,12 +511,6 @@ public class MinionEntity extends TameableEntity implements InventoryChangedList
         setSitting(false);
         return super.initialize(world, difficulty, spawnReason, entityData);
     }
-
-    @Override
-    public @Nullable PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
-        return null;
-    }
-
     @Override
     public SimpleInventory getInventory() {
         return this.items;
@@ -492,5 +535,58 @@ public class MinionEntity extends TameableEntity implements InventoryChangedList
         if (!this.getWorld().isClient) {
             this.dataTracker.set(ARMOR,sender.getStack(10));
         }
+    }
+
+    //deal with brain
+    @Override
+    protected Brain.Profile<?> createBrainProfile() {
+        return new SmartBrainProvider<>(this);
+    }
+
+    @Override
+    public List<? extends ExtendedSensor<? extends MinionEntity>> getSensors() {
+        return List.of(
+                new NearbyItemsSensor<>(),
+                new NearbyLivingEntitySensor<>(),
+                new HurtBySensor<>(),
+                new NearbyPlayersSensor<>(),
+                new NearestItemSensor<>()
+        );
+    }
+
+    @Override
+    public BrainActivityGroup<? extends MinionEntity> getCoreTasks() {
+        return BrainActivityGroup.coreTasks(
+                new BreedWithPartner<>(),
+                new LookAtTarget<>(),
+                new FollowOwner<>(),
+                new MoveToWalkTarget<>()
+        );
+    }
+
+    @Override
+    public BrainActivityGroup<? extends MinionEntity> getIdleTasks() {
+        return BrainActivityGroup.idleTasks(
+                new MinionFarmBehaviour<>(),
+                new PickupItemBehaviour<>(),
+                new FirstApplicableBehaviour<>(
+                        new SetAttackTargetToOwnerAttackTarget<>(),
+                        new SetAttackTargetToAttacker<>(),
+                        new SetPlayerLookTarget<>(),
+                        new SetRandomLookTarget<>()),
+                new OneRandomBehaviour<MinionEntity>(
+                        new SetRandomWalkTargetTamed<>(),
+                        new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(5,10))
+                )
+        );
+    }
+
+    @Override
+    public BrainActivityGroup<? extends MinionEntity> getFightTasks() {
+        return BrainActivityGroup.fightTasks(
+                new InvalidateAttackTarget<>(),
+                new SetWalkTargetToAttackTarget<>(),
+                new AnimatableMeleeAttack<>(0)
+        );
     }
 }

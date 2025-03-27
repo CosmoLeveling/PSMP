@@ -1,7 +1,7 @@
 package com.cosmo.psmp.entities.client.feature;
 
 import com.cosmo.psmp.entities.client.MelonGuyModel;
-import com.cosmo.psmp.entities.custom.MelonGuyEntity;
+import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.google.common.collect.Maps;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
@@ -24,7 +24,7 @@ import net.minecraft.util.math.ColorHelper;
 
 import java.util.Map;
 
-public class MelonArmorFeature<T extends MelonGuyEntity, M extends MelonGuyModel<T>> extends FeatureRenderer<T, M> {
+public class MelonArmorFeature<T extends MinionEntity, M extends MelonGuyModel<T>> extends FeatureRenderer<T, M> {
     private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = Maps.<String, Identifier>newHashMap();
     private final M ArmorModel;
     private final SpriteAtlasTexture armorTrimsAtlas;

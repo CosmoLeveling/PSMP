@@ -3,14 +3,14 @@ package com.cosmo.psmp.entities.client;
 import com.cosmo.psmp.PSMP;
 import com.cosmo.psmp.entities.client.feature.PumpkinArmorFeature;
 import com.cosmo.psmp.entities.client.feature.PumpkinGuyEyes;
-import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
+import com.cosmo.psmp.entities.custom.MinionEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-public class PumpkinGuyRenderer extends MobEntityRenderer<PumpkinGuyEntity,PumpkinGuyModel<PumpkinGuyEntity>> {
+public class PumpkinGuyRenderer extends MobEntityRenderer<MinionEntity,PumpkinGuyModel<MinionEntity>> {
     public PumpkinGuyRenderer(EntityRendererFactory.Context ctx) {
         super(ctx, new PumpkinGuyModel<>(ctx.getPart(PumpkinGuyModel.PUMPKINGUY)),0.5f);
         this.addFeature(new PumpkinGuyEyes<>(this));
@@ -18,12 +18,12 @@ public class PumpkinGuyRenderer extends MobEntityRenderer<PumpkinGuyEntity,Pumpk
     }
 
     @Override
-    public Identifier getTexture(PumpkinGuyEntity entity) {
+    public Identifier getTexture(MinionEntity entity) {
         return Identifier.of(PSMP.MOD_ID, "textures/entity/pumpkin_guy/pumpkin_guy.png");
     }
 
     @Override
-    public void render(PumpkinGuyEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    public void render(MinionEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         if (livingEntity.isBaby()){
             matrixStack.scale(0.5f,0.5f,0.5f);
         } else {
