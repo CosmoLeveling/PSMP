@@ -3,6 +3,7 @@ package com.cosmo.psmp.datagen;
 import com.cosmo.psmp.PSMP;
 import com.cosmo.psmp.commands.arguments.AbilityEnum;
 import com.cosmo.psmp.entities.PSMPEntities;
+import com.cosmo.psmp.items.PSMPItemGroups;
 import com.cosmo.psmp.items.PSMPItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
@@ -28,5 +29,6 @@ public class PSMPLanguageProvider extends FabricLanguageProvider {
                 }
             }
         }
+        translationBuilder.add(Identifier.of("itemgroup", "psmp.ability_group"),"Abilities");
     }
 }

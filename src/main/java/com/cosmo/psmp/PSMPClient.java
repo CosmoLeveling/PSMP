@@ -7,6 +7,7 @@ import com.cosmo.psmp.entities.client.MelonGuyRenderer;
 import com.cosmo.psmp.entities.client.PumpkinGuyModel;
 import com.cosmo.psmp.entities.client.PumpkinGuyRenderer;
 import com.cosmo.psmp.event.KeyInputHandler;
+import com.cosmo.psmp.items.PSMPItemGroups;
 import com.cosmo.psmp.screen.MinionScreen;
 import com.cosmo.psmp.screen.PSMPScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
@@ -27,6 +28,7 @@ public class PSMPClient implements ClientModInitializer {
         EntityRendererRegistry.register(PSMPEntities.MELON_GUY, MelonGuyRenderer::new);
         HandledScreens.register(PSMPScreenHandlers.MINION_SCREEN_HANDLER, MinionScreen::new);
         HudRenderCallback.EVENT.register(new AbilityHudOverlay());
+
         //S2C
 
     }

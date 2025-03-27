@@ -140,7 +140,7 @@ public class Abilities {
                     TeleportLocationAttachedData teleportData = player.getAttachedOrElse(TELEPORT_LOCATION_ATTACHMENT_TYPE,new TeleportLocationAttachedData("none", new BlockPos(0,-300,0)));
                     if (!player.isSneaking()&& !teleportData.pos().equals(new BlockPos(0,-300,0))){
                         ServerWorld serverWorld = player.getServer().getWorld(RegistryKey.of(RegistryKeys.WORLD,Identifier.of(teleportData.world())));
-                        player.teleportTo(new TeleportTarget(serverWorld,teleportData.pos().toCenterPos(),player.getVelocity(),player.getYaw(),player.getPitch(), TeleportTarget.NO_OP));
+                        player.teleportTo(new TeleportTarget(serverWorld,teleportData.pos().toCenterPos().subtract(0,0.5,0),player.getVelocity(),player.getYaw(),player.getPitch(), TeleportTarget.NO_OP));
                     }else{
                         player.setAttached(TELEPORT_LOCATION_ATTACHMENT_TYPE, new TeleportLocationAttachedData(player.getWorld().getDimensionEntry().getIdAsString(),player.getBlockPos()));
                     }

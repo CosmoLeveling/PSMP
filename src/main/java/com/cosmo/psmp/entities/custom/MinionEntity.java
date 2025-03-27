@@ -5,6 +5,7 @@ import com.cosmo.psmp.entities.PSMPEntities;
 import com.cosmo.psmp.entities.behaviours.*;
 import com.cosmo.psmp.networking.IntPayload;
 import com.cosmo.psmp.screen.MinionScreenHandler;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
@@ -31,13 +32,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.function.ValueLists;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -50,8 +57,8 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeA
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreedWithPartner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
@@ -66,13 +73,14 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
+import java.util.function.IntFunction;
 
 public class MinionEntity extends TameableEntity implements SmartBrainOwner<MinionEntity>,InventoryChangedListener,InventoryOwner, ExtendedScreenHandlerFactory<IntPayload> {
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
     private final SimpleInventory items = new SimpleInventory(14);
-    private static final TrackedData<Boolean> SITTING = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.BOOLEAN);
+
+    private static final TrackedData<MinionEntity.State> STATE = DataTracker.registerData(MinionEntity.class, PSMP.MINION_STATE);
     private static final TrackedData<ItemStack> BACKPACK = DataTracker.registerData(MinionEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
     private static final TrackedData<ItemStack> ARMOR = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.ITEM_STACK);
     private static final TrackedData<ItemStack> TOOL = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.ITEM_STACK);
@@ -246,7 +254,7 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
 
     @Override
     protected void mobTick() {
-        if(!isMobSitting()) {
+        if(!(getState().equals(State.IDLE)||getState().equals(State.SITTING))) {
             tickBrain(this);
         }else{
             BrainUtils.clearMemories(brain, MemoryModuleType.ATTACK_TARGET);
@@ -286,7 +294,19 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
                 } else {
                     ActionResult actionResult = super.interactMob(player, hand);
                     if (!actionResult.isAccepted() && this.isOwner(player)) {
-                        this.setSitting(!this.isMobSitting());
+                        if(this.getState().equals(State.IDLE)){
+                            player.sendMessage(Text.literal("Minion is now Sitting"),true);
+                            this.setState(State.SITTING);
+                        } else if (this.getState().equals(State.SITTING)) {
+                            player.sendMessage(Text.literal("Minion is now Following"),true);
+                            this.setState(State.FOLLOWING);
+                        } else if (this.getState().equals(State.FOLLOWING)) {
+                            player.sendMessage(Text.literal("Minion is now Wandering"),true);
+                            this.setState(State.WANDERING);
+                        } else if (this.getState().equals(State.WANDERING)) {
+                            player.sendMessage(Text.literal("Minion is now Idle"),true);
+                            this.setState(State.IDLE);
+                        }
                         this.jumping = false;
                         this.navigation.stop();
                         this.setTarget((LivingEntity) null);
@@ -332,7 +352,7 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         super.initDataTracker(builder);
-        builder.add(SITTING,false);
+        builder.add(STATE,State.FOLLOWING);
         builder.add(BACKPACK,ItemStack.EMPTY);
         builder.add(OFFHAND,ItemStack.EMPTY);
         builder.add(ARMOR,ItemStack.EMPTY);
@@ -361,12 +381,12 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
         return this.dataTracker.get(OFFHAND);
     }
 
-    public void setSitting(boolean sitting) {
-        this.dataTracker.set(SITTING,sitting);
+    public void setState(State state) {
+        this.dataTracker.set(STATE,state);
     }
 
-    public boolean isMobSitting() {
-        return this.dataTracker.get(SITTING);
+    public State getState() {
+        return this.dataTracker.get(STATE);
     }
 
     public ItemStack getARMOR() {
@@ -405,8 +425,8 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
         return itemStack;
     }
 
-    public Boolean hasSeedToPlant() {
-        return this.items.containsAny(Set.of(Items.WHEAT_SEEDS));
+    public boolean hasSeedToPlant() {
+        return this.getInventory().containsAny(stack -> stack.isIn(ItemTags.VILLAGER_PLANTABLE_SEEDS));
     }
 
     public void setTool(ItemStack itemStack){
@@ -424,7 +444,7 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("isSitting",this.isMobSitting());
+        nbt.putString("state", this.getState().asString());
         if (!this.items.getStack(10).isEmpty()) {
             nbt.put("Helmet", this.items.getStack(10).encode(getRegistryManager()));
         }
@@ -454,7 +474,7 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.dataTracker.set(SITTING,nbt.getBoolean("isSitting"));
+        this.setState(MinionEntity.State.fromName(nbt.getString("state")));
         if(nbt.contains("Helmet")) {
             this.items.setStack(10,ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Helmet")).orElse(ItemStack.EMPTY));
             this.dataTracker.set(ARMOR, ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Helmet")).orElse(ItemStack.EMPTY));
@@ -554,7 +574,7 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
         return BrainActivityGroup.coreTasks(
                 new BreedWithPartner<>(),
                 new LookAtTarget<>(),
-                new FollowOwner<>(),
+                new MinionFollowOwner<>(),
                 new MoveToWalkTarget<>()
         );
     }
@@ -570,7 +590,7 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new OneRandomBehaviour<MinionEntity>(
-                        new SetRandomWalkTargetTamed<>(),
+                        new SetRandomWalkTarget<>(),
                         new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(5,10))
                 )
         );
@@ -583,5 +603,38 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
                 new SetWalkTargetToAttackTarget<>(),
                 new AnimatableMeleeAttack<>(0)
         );
+    }
+
+    public static enum State implements StringIdentifiable {
+        IDLE("idle", 0),
+        SITTING("sitting", 1),
+        FOLLOWING("following", 2),
+        WANDERING("wandering", 3);
+
+        private static final StringIdentifiable.EnumCodec<MinionEntity.State> CODEC = StringIdentifiable.createCodec(MinionEntity.State::values);
+        private static final IntFunction<MinionEntity.State> INDEX_TO_VALUE = ValueLists.createIdToValueFunction(
+                MinionEntity.State::getIndex, values(), ValueLists.OutOfBoundsHandling.ZERO
+        );
+        public static final PacketCodec<ByteBuf, MinionEntity.State> PACKET_CODEC = PacketCodecs.indexed(INDEX_TO_VALUE, MinionEntity.State::getIndex);
+        private final String name;
+        private final int index;
+
+        State(final String name, final int index) {
+            this.name = name;
+            this.index = index;
+        }
+
+        public static MinionEntity.State fromName(String name) {
+            return (MinionEntity.State)CODEC.byId(name, IDLE);
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
+
+        private int getIndex() {
+            return this.index;
+        }
     }
 }

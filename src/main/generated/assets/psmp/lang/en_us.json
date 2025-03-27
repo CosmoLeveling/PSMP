@@ -6,5 +6,6 @@
   "item.psmp.grow_size": "Grow Size",
   "item.psmp.invisibility": "Invisibility",
   "item.psmp.summon_minion": "Summon Minion",
-  "item.psmp.warp": "Warp"
+  "item.psmp.warp": "Warp",
+  "itemgroup.psmp.ability_group": "Abilities"
 }

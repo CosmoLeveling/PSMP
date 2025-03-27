@@ -96,7 +96,7 @@ public class PumpkinGuyModel<T extends MinionEntity> extends SinglePartEntityMod
 		this.getPart().traverse().forEach(ModelPart::resetTransform);
 		this.animateMovement(PumpkinGuyAnimations.Walk, limbAngle,limbDistance,2f,2.5f);
 		this.updateAnimation(entity.idleAnimationState, PumpkinGuyAnimations.Idle,animationProgress,1f);
-		if (entity.isMobSitting()){
+		if (entity.getState().equals(MinionEntity.State.SITTING)){
 			animate(PumpkinGuyAnimations.Sitting);
 		}
 	}
