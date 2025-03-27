@@ -1,12 +1,10 @@
 package com.cosmo.psmp.util;
 
 import com.cosmo.psmp.PSMP;
+import com.cosmo.psmp.PSMPAttachmentTypes;
 import com.cosmo.psmp.effects.PSMPEffects;
 import com.cosmo.psmp.entities.PSMPEntities;
-import com.cosmo.psmp.networking.ChangeSizePayload;
-import com.cosmo.psmp.networking.FertilizePayload;
-import com.cosmo.psmp.networking.PhasePayload;
-import com.cosmo.psmp.networking.SpawnMobPayload;
+import com.cosmo.psmp.networking.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.entity.SpawnReason;
@@ -15,15 +13,22 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.cosmo.psmp.PSMPAttachmentTypes.ABILITIES;
+import static com.cosmo.psmp.PSMPAttachmentTypes.TELEPORT_LOCATION_ATTACHMENT_TYPE;
 
 public class Abilities {
     public static void register() {
@@ -134,5 +139,17 @@ public class Abilities {
                 PSMP.LOGGER.info("End");
             });
         })));
+        //Warp
+        ServerPlayNetworking.registerGlobalReceiver(WarpPayload.ID,(((warpPayload, context) ->
+                context.server().execute(() -> {
+                    PlayerEntity player = context.player();
+                    TeleportLocationAttachedData teleportData = player.getAttachedOrElse(TELEPORT_LOCATION_ATTACHMENT_TYPE,new TeleportLocationAttachedData("none", new BlockPos(0,-300,0)));
+                    if (!player.isSneaking()&& !teleportData.pos().equals(new BlockPos(0,-300,0))){
+                        ServerWorld serverWorld = player.getServer().getWorld(RegistryKey.of(RegistryKeys.WORLD,Identifier.of(teleportData.world())));
+                        player.teleportTo(new TeleportTarget(serverWorld,teleportData.pos().toCenterPos(),player.getVelocity(),player.getYaw(),player.getPitch(), TeleportTarget.NO_OP));
+                    }else{
+                        player.setAttached(TELEPORT_LOCATION_ATTACHMENT_TYPE, new TeleportLocationAttachedData(player.getWorld().getDimensionEntry().getIdAsString(),player.getBlockPos()));
+                    }
+                }))));
     }
 }

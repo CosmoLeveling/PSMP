@@ -15,6 +15,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.util.math.BlockPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ public class PSMP implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(ChangeSizePayload.ID, ChangeSizePayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(FertilizePayload.ID, FertilizePayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(PhasePayload.ID, PhasePayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(WarpPayload.ID, WarpPayload.CODEC);
 
 		//Entity Attributes
 		FabricDefaultAttributeRegistry.register(PSMPEntities.PUMPKIN_GUY, PumpkinGuyEntity.createAttributes());

@@ -1,4 +1,10 @@
 {
   "entity.psmp.melon_guy": "Melon Guy",
-  "entity.psmp.pumpkin_guy": "Pumpkin Guy"
+  "entity.psmp.pumpkin_guy": "Pumpkin Guy",
+  "item.psmp.copy": "Copy",
+  "item.psmp.fertilize": "Fertilize",
+  "item.psmp.grow_size": "Grow Size",
+  "item.psmp.phase": "Phase",
+  "item.psmp.summon_minion": "Summon Minion",
+  "item.psmp.warp": "Warp"
 }

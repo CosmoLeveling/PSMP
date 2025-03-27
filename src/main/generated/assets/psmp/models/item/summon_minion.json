@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "psmp:item/summon_minion"
+    "layer0": "psmp:item/abilities/summon_minion"
   }
 }

@@ -126,16 +126,16 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
     @Override
     public BrainActivityGroup<? extends PumpkinGuyEntity> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
+                new MinionFarmBehaviour<>(),
+                new PickupItemBehaviour<>(),
                 new FirstApplicableBehaviour<>(
                         new SetAttackTargetToOwnerAttackTarget<>(),
                         new SetAttackTargetToAttacker<>(),
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new OneRandomBehaviour<PumpkinGuyEntity>(
-                        new MinionFarmBehaviour<>(),
-                        new PickupItemBehaviour<>(),
                         new SetRandomWalkTargetTamed<>(),
-                        new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(30,60) )
+                        new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(5,10))
                 )
         );
     }

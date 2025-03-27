@@ -47,11 +47,11 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
         if(entity.getTool().isOf(Items.IRON_HOE)) {
             BlockPos.Mutable mutable = entity.getBlockPos().mutableCopy();
             this.targetPositions.clear();
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
-                    for (int k = -1; k <= 1; k++) {
+            for (int i = -3; i <= 3; i++) {
+                for (int j = -3; j <= 3; j++) {
+                    for (int k = -3; k <= 3; k++) {
                         mutable.set(entity.getX() + i, entity.getY() + j, entity.getZ() + k);
-                        if (this.isSuitableTarget(mutable, level)) {
+                        if (this.isSuitableTarget(mutable, level, entity)) {
                             this.targetPositions.add(new BlockPos(mutable));
                         }
                     }
@@ -68,14 +68,18 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
         return this.targetPositions.isEmpty() ? null : (BlockPos)this.targetPositions.get(world.getRandom().nextInt(this.targetPositions.size()));
     }
 
-    private boolean isSuitableTarget(BlockPos pos, ServerWorld world) {
+    private boolean isSuitableTarget(BlockPos pos, ServerWorld world, MinionEntity entity) {
         BlockState blockState = world.getBlockState(pos);
         Block block = blockState.getBlock();
         Block block2 = world.getBlockState(pos.down()).getBlock();
+        if (block2 instanceof FarmlandBlock && blockState.isAir() && !entity.hasSeedToPlant()){
+            return false;
+        }
         return block instanceof CropBlock && ((CropBlock)block).isMature(blockState) || blockState.isAir() && block2 instanceof FarmlandBlock;
     }
     @Override
     protected void start(T entity) {
+        PSMP.LOGGER.info("Start");
         if(currentTarget!=null) {
             BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(currentTarget, (Float) this.speedModifier.apply(entity, Vec3d.of(currentTarget)), 0));
         } else {
@@ -85,6 +89,7 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
 
     @Override
     protected void stop(T entity) {
+        PSMP.LOGGER.info("Stopped");
         World serverWorld = entity.getWorld();
         if(currentTarget!=null) {
             BlockState blockState = serverWorld.getBlockState(this.currentTarget);
@@ -119,6 +124,20 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
                 }
             }
         }
+        entity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
+        entity.getBrain().forget(MemoryModuleType.WALK_TARGET);
+        this.ticksRan = 0;
         super.stop(entity);
+    }
+
+    @Override
+    protected void keepRunning(ServerWorld level, T entity, long gameTime) {
+        super.keepRunning(level, entity, gameTime);
+        this.ticksRan++;
+    }
+
+    @Override
+    protected boolean shouldKeepRunning(ServerWorld level, T entity, long gameTime) {
+        return this.ticksRan < 10;
     }
 }

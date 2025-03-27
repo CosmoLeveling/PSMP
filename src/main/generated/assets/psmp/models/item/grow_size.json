@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "psmp:item/abilities/fertilize"
+    "layer0": "psmp:item/abilities/grow_size"
   }
 }

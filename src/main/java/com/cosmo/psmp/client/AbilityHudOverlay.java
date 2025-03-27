@@ -55,16 +55,16 @@ public class AbilityHudOverlay implements HudRenderCallback {
     private void draw_Ability(int slot, MinecraftClient client, DrawContext drawContext, int x,int y) {
         if(client.player.getAttached(ABILITIES).stringList().get(slot).contains("copy")){
             if(Objects.equals(client.player.getAttached(ABILITIES).stringList().get(slot), "copy")) {
-                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
+                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/item/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
                         16, 16);
             }else{
-                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).replace("_copy","") + ".png"),  x, y, 0, 0, 16, 16,
+                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/items/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).replace("_copy","") + ".png"),  x, y, 0, 0, 16, 16,
                         16, 16);
                 drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/copy_outline.png"), x, y, 0, 0, 16, 16,
                         16, 16);
             }
         }else {
-            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
+            drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/item/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
                     16, 16);
         }
     }
