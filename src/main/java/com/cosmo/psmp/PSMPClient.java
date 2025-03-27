@@ -20,8 +20,10 @@ public class PSMPClient implements ClientModInitializer {
     public void onInitializeClient() {
         KeyInputHandler.registerKeyInputs();
         EntityModelLayerRegistry.registerModelLayer(PumpkinGuyModel.PUMPKINGUY,PumpkinGuyModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(PumpkinGuyModel.PUMPKINGUY_ARMOR,PumpkinGuyModel::getTexturedModelData);
         EntityRendererRegistry.register(PSMPEntities.PUMPKIN_GUY, PumpkinGuyRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(MelonGuyModel.MELONGUY,MelonGuyModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MelonGuyModel.MELONGUY_ARMOR,MelonGuyModel::getTexturedModelData);
         EntityRendererRegistry.register(PSMPEntities.MELON_GUY, MelonGuyRenderer::new);
         HandledScreens.register(PSMPScreenHandlers.MINION_SCREEN_HANDLER, MinionScreen::new);
         HudRenderCallback.EVENT.register(new AbilityHudOverlay());

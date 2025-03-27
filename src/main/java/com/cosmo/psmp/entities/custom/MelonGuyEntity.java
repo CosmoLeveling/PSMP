@@ -1,10 +1,7 @@
 package com.cosmo.psmp.entities.custom;
 
 import com.cosmo.psmp.entities.PSMPEntities;
-import com.cosmo.psmp.entities.behaviours.PickupItemBehaviour;
-import com.cosmo.psmp.entities.behaviours.SetAttackTargetToAttacker;
-import com.cosmo.psmp.entities.behaviours.SetAttackTargetToOwnerAttackTarget;
-import com.cosmo.psmp.entities.behaviours.SetRandomWalkTargetTamed;
+import com.cosmo.psmp.entities.behaviours.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -56,7 +53,7 @@ public class MelonGuyEntity extends MinionEntity implements SmartBrainOwner<Melo
     @Override
     public @Nullable PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
         MelonGuyEntity melonGuyEntity = PSMPEntities.MELON_GUY.create(world);
-        if (melonGuyEntity != null && entity instanceof MelonGuyEntity pumpkinGuyEntity1) {
+        if (melonGuyEntity != null && entity instanceof MelonGuyEntity melonGuyEntity1) {
             if (this.isTamed()) {
                 melonGuyEntity.setOwnerUuid(this.getOwnerUuid());
                 melonGuyEntity.setTamed(true, true);
@@ -119,7 +116,8 @@ public class MelonGuyEntity extends MinionEntity implements SmartBrainOwner<Melo
                         new SetAttackTargetToAttacker<>(),
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
-                new OneRandomBehaviour<MelonGuyEntity>(
+                new OneRandomBehaviour<PumpkinGuyEntity>(
+                        new MinionFarmBehaviour<>(),
                         new PickupItemBehaviour<>(),
                         new SetRandomWalkTargetTamed<>(),
                         new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(30,60) )

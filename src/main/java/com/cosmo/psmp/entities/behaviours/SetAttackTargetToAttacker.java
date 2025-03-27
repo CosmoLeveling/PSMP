@@ -1,13 +1,13 @@
 package com.cosmo.psmp.entities.behaviours;
 
 import com.cosmo.psmp.entities.custom.MinionEntity;
-import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -40,7 +40,7 @@ public class SetAttackTargetToAttacker<E extends MinionEntity> extends ExtendedB
 
     @Override
     protected boolean doStartCheck(ServerWorld level, E entity, long gameTime) {
-        return entity.hasSword();
+        return entity.getTool().isOf(Items.IRON_SWORD);
     }
 
     @Override // Actually handle the function of the behaviour here

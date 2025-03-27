@@ -18,7 +18,7 @@ public class PSMPLootTableModifiers {
                 LootPool.Builder poolBuilder = LootPool.builder()
                         .rolls(ConstantLootNumberProvider.create(1))
                         .conditionally(RandomChanceLootCondition.builder(0.25f))
-                        .with(ItemEntry.builder(PSMPItems.fertilize))
+                        .with(ItemEntry.builder(PSMPItems.ability_items.get(2)))
                         .apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f,2.0f)).build());
 
                 builder.pool(poolBuilder);

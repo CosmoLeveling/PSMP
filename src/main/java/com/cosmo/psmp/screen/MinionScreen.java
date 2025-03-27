@@ -17,5 +17,14 @@ public class MinionScreen extends HandledScreen<MinionScreenHandler> {
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
         context.drawTexture(TEXTURE,this.x,this.y,0,0,this.backgroundWidth,this.backgroundHeight);
+        if(handler.getEntity().hasBackpack()){
+            context.drawTexture(TEXTURE,this.x,this.y+50,0,166,this.backgroundWidth,18);
+        }
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+        drawMouseoverTooltip(context,mouseX,mouseY);
     }
 }

@@ -1,5 +1,6 @@
 package com.cosmo.psmp;
 
+import com.cosmo.psmp.blocks.PSMPBlocks;
 import com.cosmo.psmp.commands.PSMPCommands;
 import com.cosmo.psmp.effects.PSMPEffects;
 import com.cosmo.psmp.entities.PSMPEntities;
@@ -44,9 +45,6 @@ public class PSMP implements ModInitializer {
 		PSMPScreenHandlers.init();
 		PSMPEntities.registerEntities();
 		PSMPEffects.registerEffects();
-
-
-
-
+		PSMPBlocks.init();
 	}
 }

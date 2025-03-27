@@ -1,10 +1,7 @@
 package com.cosmo.psmp.entities.custom;
 
 import com.cosmo.psmp.entities.PSMPEntities;
-import com.cosmo.psmp.entities.behaviours.PickupItemBehaviour;
-import com.cosmo.psmp.entities.behaviours.SetAttackTargetToAttacker;
-import com.cosmo.psmp.entities.behaviours.SetAttackTargetToOwnerAttackTarget;
-import com.cosmo.psmp.entities.behaviours.SetRandomWalkTargetTamed;
+import com.cosmo.psmp.entities.behaviours.*;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.*;
@@ -135,6 +132,7 @@ public class PumpkinGuyEntity extends MinionEntity implements SmartBrainOwner<Pu
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new OneRandomBehaviour<PumpkinGuyEntity>(
+                        new MinionFarmBehaviour<>(),
                         new PickupItemBehaviour<>(),
                         new SetRandomWalkTargetTamed<>(),
                         new Idle<>().runFor(livingEntity -> livingEntity.getRandom().nextBetween(30,60) )

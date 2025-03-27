@@ -1,16 +1,13 @@
 package com.cosmo.psmp.entities.behaviours;
 
-import com.cosmo.psmp.PSMP;
 import com.cosmo.psmp.entities.custom.MinionEntity;
-import com.cosmo.psmp.entities.custom.PumpkinGuyEntity;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -43,7 +40,7 @@ public class SetAttackTargetToOwnerAttackTarget<E extends MinionEntity> extends 
 
     @Override
     protected boolean doStartCheck(ServerWorld level, E tameable, long gameTime) {
-        if (!tameable.hasSword() || tameable.getOwner() == null || !tameable.isTamed() || tameable.isSitting()) {
+        if (!tameable.getTool().isOf(Items.IRON_SWORD) || tameable.getOwner() == null || !tameable.isTamed() || tameable.isSitting()) {
             return false;
         }
 

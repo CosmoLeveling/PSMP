@@ -43,8 +43,13 @@ public class Abilities {
                     }
                 } else {
                     if (changesizePayload.mode().contains("reset_size")) {
-                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size"),16, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-                        context.player().getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_speed"),16, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1);
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).removeModifier(Identifier.of(PSMP.MOD_ID,"size_speed"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_JUMP_STRENGTH).removeModifier(Identifier.of(PSMP.MOD_ID,"size_jump"));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_block_range"));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_entity_range"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).removeModifier(Identifier.of(PSMP.MOD_ID,"size_step"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_safe"));
                     } else if (changesizePayload.mode().contains("grow_size")) {
                         double max_height=16;
                         for (int I = context.player().getBlockY();I<=context.player().getBlockY()+32;I++){
@@ -54,9 +59,33 @@ public class Abilities {
                                 break;
                             }
                         }
-                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue() + 0.01, 0.45, max_height));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).removeModifier(Identifier.of(PSMP.MOD_ID,"size_speed"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_JUMP_STRENGTH).removeModifier(Identifier.of(PSMP.MOD_ID,"size_jump"));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_block_range"));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_entity_range"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).removeModifier(Identifier.of(PSMP.MOD_ID,"size_step"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_safe"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue() + 0.01, 0.325, max_height));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_speed"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_JUMP_STRENGTH).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_jump"),(Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1)/4, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_block_range"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_entity_range"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_step"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_safe"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
                     } else {
-                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue() - 0.01,0.45,16));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).removeModifier(Identifier.of(PSMP.MOD_ID,"size_speed"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_JUMP_STRENGTH).removeModifier(Identifier.of(PSMP.MOD_ID,"size_jump"));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_block_range"));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_entity_range"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).removeModifier(Identifier.of(PSMP.MOD_ID,"size_step"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).removeModifier(Identifier.of(PSMP.MOD_ID,"size_safe"));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue() - 0.01,0.325,16));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_speed"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_JUMP_STRENGTH).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_jump"),(Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1)/4, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_block_range"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_entity_range"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_STEP_HEIGHT).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_step"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        context.player().getAttributeInstance(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).addTemporaryModifier(new EntityAttributeModifier(Identifier.of(PSMP.MOD_ID,"size_safe"),Math.clamp(context.player().getAttributeInstance(EntityAttributes.GENERIC_SCALE).getBaseValue(),1,16)-1, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
                     }
                 }
             });

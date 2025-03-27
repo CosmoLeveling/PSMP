@@ -1,5 +1,6 @@
 package com.cosmo.psmp.entities.custom;
 
+import com.cosmo.psmp.PSMP;
 import com.cosmo.psmp.networking.IntPayload;
 import com.cosmo.psmp.screen.MinionScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -38,59 +39,60 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.Set;
 
-public class MinionEntity extends TameableEntity implements InventoryOwner, ExtendedScreenHandlerFactory<IntPayload> {
+public class MinionEntity extends TameableEntity implements InventoryChangedListener,InventoryOwner, ExtendedScreenHandlerFactory<IntPayload> {
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
-    private final SimpleInventory inventory = new SimpleInventory(13);
+    private final SimpleInventory items = new SimpleInventory(14);
     private static final TrackedData<Boolean> SITTING = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> BACKPACK = DataTracker.registerData(MinionEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<ItemStack> BACKPACK = DataTracker.registerData(MinionEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+    private static final TrackedData<ItemStack> ARMOR = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.ITEM_STACK);
+    private static final TrackedData<ItemStack> TOOL = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.ITEM_STACK);
+    private static final TrackedData<ItemStack> OFFHAND = DataTracker.registerData(MinionEntity.class,TrackedDataHandlerRegistry.ITEM_STACK);
+
     public MinionEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
         this.setCanPickUpLoot(true);
-        this.inventory.markDirty();
     }
-
     @Override
     protected void loot(ItemEntity item) {
         if(this.hasBackpack()) {
             ItemStack itemStack = item.getStack();
             ItemStack itemStack1 = calculatePickedUpStack(itemStack);
             if (!itemStack1.isEmpty()) {
+                PSMP.LOGGER.info(itemStack1.toString());
                 this.triggerItemPickedUpByEntityCriteria(item);
                 this.sendPickup(item, itemStack1.getCount());
-                this.inventory.addStack(itemStack);
+                this.items.addStack(itemStack1);
                 itemStack.decrement(itemStack1.getCount());
                 if (itemStack.isEmpty()) {
                     item.discard();
                 }
             }
         }
-        this.inventory.markDirty();
+        this.items.markDirty();
     }
     public boolean areInventoriesDifferent(Inventory inventory) {
-        return this.inventory != inventory;
+        return this.items != inventory;
     }
     public ItemStack calculatePickedUpStack(ItemStack itemStack) {
         ItemStack returnedStack =ItemStack.EMPTY;
-        if(inventory.isEmpty()){
+        if(items.isEmpty()){
             returnedStack = itemStack;
         }else{
-            for (int s = 0; s < inventory.getHeldStacks().size(); s++) {
-                if (!(s>=9)) {
-                    ItemStack itemStack1 = inventory.getStack(s);
-                    if (itemStack1.isEmpty()) {
-                        returnedStack = itemStack;
-                    } else if (itemStack1.isOf(itemStack.getItem())) {
-                        if (itemStack1.getCount() != itemStack1.getMaxCount()) {
-                            int i = itemStack1.getCount() + itemStack.getCount();
-                            if (i >= 64) {
-                                int k = itemStack.getCount() - (i - 64);
-                                returnedStack = new ItemStack(itemStack.getItem(), k);
-                            } else {
-                                returnedStack = new ItemStack(itemStack.getItem(), itemStack.getCount());
-                            }
+            for (int s = 0; s < 9; s++) {
+                ItemStack itemStack1 = items.getStack(s);
+                if (itemStack1.isEmpty()) {
+                    returnedStack = itemStack;
+                } else if (itemStack1.isOf(itemStack.getItem())) {
+                    if (itemStack1.getCount() != itemStack1.getMaxCount()) {
+                        int i = itemStack1.getCount() + itemStack.getCount();
+                        if (i >= 64) {
+                            int k = itemStack.getCount() - (i - 64);
+                            returnedStack = new ItemStack(itemStack.getItem(), k);
+                        } else {
+                            returnedStack = new ItemStack(itemStack.getItem(), itemStack.getCount());
                         }
                     }
                 }
@@ -119,7 +121,14 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
     @Override
     public void tick() {
         super.tick();
-        this.inventory.markDirty();
+        if(!this.getWorld().isClient){
+            this.dataTracker.set(TOOL,this.items.getStack(9));
+            this.dataTracker.set(ARMOR,this.items.getStack(10));
+            this.dataTracker.set(BACKPACK,this.items.getStack(12));
+            this.dataTracker.set(OFFHAND,this.items.getStack(11));
+        }
+        this.setStackInHand(Hand.OFF_HAND, this.getOffhand());
+        this.equipStack(EquipmentSlot.HEAD, this.getARMOR());
         if (this.getWorld().isClient) {
             this.setupAnimationStates();
         }
@@ -179,12 +188,8 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
         }
     }
 
-    public void setSwordSlot(ItemStack itemStack) {
-        this.inventory.setStack(9,itemStack);
-        this.inventory.markDirty();
-    }
     public ItemStack getSwordSlot() {
-        return this.inventory.getStack(9);
+        return this.items.getStack(9);
     }
 
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
@@ -193,11 +198,12 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
         if (player.shouldCancelInteraction()) {
             this.openInventory(player);
             return ActionResult.success(this.getWorld().isClient);
-        } else if (!this.hasSword() && itemStack.isOf(Items.IRON_SWORD) && this.isOwner(player)) {
-            this.setSwordSlot(itemStack.copy());
+        } else if (this.getTool().isEmpty() &&( itemStack.isOf(Items.IRON_SWORD)||itemStack.isOf(Items.IRON_HOE)) && this.isOwner(player)) {
+            this.setTool(itemStack.copy());
             itemStack.decrementUnlessCreative(1, player);
             return ActionResult.success(this.getWorld().isClient());
-        } else if (!this.getOffHandStack().isOf(Items.TOTEM_OF_UNDYING) && itemStack.isOf(Items.TOTEM_OF_UNDYING) && this.isOwner(player)) {
+        } else if (this.getOffHandStack().isEmpty() && itemStack.isOf(Items.TOTEM_OF_UNDYING) && this.isOwner(player)) {
+            this.items.setStack(11,itemStack.copy());
             itemStack.decrementUnlessCreative(1, player);
             return ActionResult.success(this.getWorld().isClient());
         } else if (this.getARMOR().isEmpty() && (itemStack.isOf(Items.CHAINMAIL_HELMET)||itemStack.isOf(Items.IRON_HELMET)||itemStack.isOf(Items.GOLDEN_HELMET)||itemStack.isOf(Items.LEATHER_HELMET)||itemStack.isOf(Items.DIAMOND_HELMET)||itemStack.isOf(Items.NETHERITE_HELMET)) && this.isOwner(player)) {
@@ -205,7 +211,7 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
             itemStack.decrementUnlessCreative(1, player);
             return ActionResult.success(this.getWorld().isClient());
         } else if (!this.hasBackpack() && itemStack.isOf(Items.CHEST) && this.isOwner(player)) {
-            this.setBackpack(true);
+            this.setBackpack(itemStack.copy(),1);
             itemStack.decrementUnlessCreative(1, player);
             return ActionResult.success(this.getWorld().isClient());
         } else if (!this.getWorld().isClient || this.isBaby() && this.isBreedingItem(itemStack)) {
@@ -237,7 +243,7 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
             }
         } else {
             boolean bl = this.isOwner(player) || this.isTamed() || itemStack.isOf(Items.BONE) && !this.isTamed();
-            this.inventory.markDirty();
+            this.items.markDirty();
             return bl ? ActionResult.CONSUME : ActionResult.PASS;
         }
     }
@@ -248,6 +254,7 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
             }
         }
     }
+
     private void tryTame(PlayerEntity player) {
         if (this.random.nextInt(3) == 0) {
             this.setOwner(player);
@@ -282,15 +289,10 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
     protected void initDataTracker(DataTracker.Builder builder) {
         super.initDataTracker(builder);
         builder.add(SITTING,false);
-        builder.add(BACKPACK,false);
-    }
-    public boolean hasSword() {
-        if (!this.inventory.getStack(9).isEmpty()) {
-            this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue((double)100.0F);
-        }else{
-            this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue((double)1.0F);
-        }
-        return !this.inventory.getStack(9).isEmpty();
+        builder.add(BACKPACK,ItemStack.EMPTY);
+        builder.add(OFFHAND,ItemStack.EMPTY);
+        builder.add(ARMOR,ItemStack.EMPTY);
+        builder.add(TOOL,ItemStack.EMPTY);
     }
 
     @Override
@@ -298,11 +300,21 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
         return super.tryAttack(target);
     }
 
-    public void setBackpack(boolean backpack) {
-        this.dataTracker.set(BACKPACK,backpack);
+    public void setBackpack(ItemStack itemStack,int count) {
+        this.items.setStack(12,new ItemStack(itemStack.getItem(),count));
+        this.dataTracker.set(BACKPACK,new ItemStack(itemStack.getItem(),count));
+        this.items.markDirty();
     }
     public boolean hasBackpack() {
-        return (Boolean)this.dataTracker.get(BACKPACK);
+        return (Boolean)this.dataTracker.get(BACKPACK).isOf(Items.CHEST);
+    }
+    public void setOffhand(ItemStack itemStack,int count) {
+        this.items.setStack(12,new ItemStack(itemStack.getItem(),count));
+        this.dataTracker.set(BACKPACK,new ItemStack(itemStack.getItem(),count));
+        this.items.markDirty();
+    }
+    public ItemStack getOffhand() {
+        return this.dataTracker.get(OFFHAND);
     }
 
     public void setSitting(boolean sitting) {
@@ -314,94 +326,139 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
     }
 
     public ItemStack getARMOR() {
-        if (this.inventory.getStack(10).isOf(Items.LEATHER_HELMET)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(7);
+        ItemStack itemStack = this.dataTracker.get(ARMOR);
+        if (itemStack.isOf(Items.LEATHER_HELMET)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(6);
             this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(0);
-        }else if (this.inventory.getStack(10).isOf(Items.CHAINMAIL_HELMET)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(12);
+        }else if (itemStack.isOf(Items.CHAINMAIL_HELMET)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(10);
             this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(0);
-        }else if (this.inventory.getStack(10).isOf(Items.IRON_HELMET)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(15);
+        }else if (itemStack.isOf(Items.IRON_HELMET)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(13);
             this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(0);
-        }else if (this.inventory.getStack(10).isOf(Items.GOLDEN_HELMET)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(11);
+        }else if (itemStack.isOf(Items.GOLDEN_HELMET)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(9);
             this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(0);
-        }else if (this.inventory.getStack(10).isOf(Items.DIAMOND_HELMET)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(20);
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(8);
-        }else if (this.inventory.getStack(10).isOf(Items.NETHERITE_HELMET)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(20);
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(12);
+        }else if (itemStack.isOf(Items.DIAMOND_HELMET)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(17);
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(6);
+        }else if (itemStack.isOf(Items.NETHERITE_HELMET)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(17);
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(9);
+        }else{
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(0);
+            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).setBaseValue(0);
         }
-        return this.inventory.getStack(10);
+        return itemStack;
+    }
+    public ItemStack getTool() {
+        ItemStack itemStack = this.dataTracker.get(TOOL);
+        if (itemStack.isOf(Items.IRON_SWORD)){
+            this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue((double)8.0F);
+        }else{
+            this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue((double)1.0F);
+        }
+        return itemStack;
+    }
+
+    public Boolean hasSeedToPlant() {
+        return this.items.containsAny(Set.of(Items.WHEAT_SEEDS));
+    }
+
+    public void setTool(ItemStack itemStack){
+        this.items.setStack(9,itemStack);
+        this.dataTracker.set(TOOL,itemStack);
+        this.items.markDirty();
     }
 
     public void setArmor(ItemStack itemStack) {
-        this.inventory.setStack(10,itemStack);
-        this.inventory.markDirty();
+        this.items.setStack(10,itemStack);
+        this.dataTracker.set(ARMOR,itemStack);
+        this.items.markDirty();
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("Sword",this.hasSword());
-        nbt.putBoolean("Backpack",this.hasBackpack());
         nbt.putBoolean("isSitting",this.isMobSitting());
-            NbtList nbtList = new NbtList();
-
-            for(int i = 1; i < this.inventory.size(); ++i) {
-                ItemStack itemStack = this.inventory.getStack(i);
-                if (!itemStack.isEmpty()) {
-                    NbtCompound nbtCompound = new NbtCompound();
-                    nbtCompound.putByte("Slot", (byte)(i - 1));
-                    nbtList.add(itemStack.encode(this.getRegistryManager(), nbtCompound));
-                }
+        if (!this.items.getStack(10).isEmpty()) {
+            nbt.put("Helmet", this.items.getStack(10).encode(getRegistryManager()));
+        }
+        if (!this.items.getStack(12).isEmpty()) {
+            nbt.put("Backpack", this.items.getStack(12).encode(getRegistryManager()));
+        }
+        if (!this.items.getStack(13).isEmpty()) {
+            nbt.put("Offhand", this.items.getStack(13).encode(getRegistryManager()));
+        }
+        if (!this.items.getStack(9).isEmpty()) {
+            nbt.put("Tool", this.items.getStack(9).encode(getRegistryManager()));
+        }
+        NbtList nbtList = new NbtList();
+        for(int i = 0; i < 9; ++i) {
+            ItemStack itemStack = this.items.getStack(i);
+            if (!itemStack.isEmpty()) {
+                NbtCompound nbtCompound = new NbtCompound();
+                nbtCompound.putByte("Slot", (byte)(i));
+                nbtList.add(itemStack.encode(this.getRegistryManager(), nbtCompound));
+                this.items.markDirty();
             }
+        }
 
-            nbt.put("Items", nbtList);
-            this.inventory.markDirty();
+        nbt.put("Items", nbtList);
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.dataTracker.set(BACKPACK,nbt.getBoolean("Backpack"));
         this.dataTracker.set(SITTING,nbt.getBoolean("isSitting"));
-
+        if(nbt.contains("Helmet")) {
+            this.items.setStack(10,ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Helmet")).orElse(ItemStack.EMPTY));
+            this.dataTracker.set(ARMOR, ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Helmet")).orElse(ItemStack.EMPTY));
+        } else {
+            this.dataTracker.set(ARMOR,ItemStack.EMPTY);
+        }
+        if(nbt.contains("Backpack")) {
+            this.items.setStack(12,ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Backpack")).orElse(ItemStack.EMPTY));
+            this.dataTracker.set(BACKPACK, ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Backpack")).orElse(ItemStack.EMPTY));
+        } else {
+            this.dataTracker.set(BACKPACK,ItemStack.EMPTY);
+        }
+        if(nbt.contains("Offhand")) {
+            this.items.setStack(13,ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Offhand")).orElse(ItemStack.EMPTY));
+            this.dataTracker.set(OFFHAND, ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Offhand")).orElse(ItemStack.EMPTY));
+        } else {
+            this.dataTracker.set(OFFHAND,ItemStack.EMPTY);
+        }
+        if(nbt.contains("Tool")) {
+            this.items.setStack(9,ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Tool")).orElse(ItemStack.EMPTY));
+            this.dataTracker.set(TOOL, ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Tool")).orElse(ItemStack.EMPTY));
+        } else {
+            this.dataTracker.set(TOOL,ItemStack.EMPTY);
+        }
         NbtList nbtList = nbt.getList("Items", 10);
+
         for(int i = 0; i < nbtList.size(); ++i) {
-                NbtCompound nbtCompound = nbtList.getCompound(i);
-                int j = nbtCompound.getByte("Slot") & 255;
-                if (j < this.inventory.size() - 1) {
-                    this.inventory.setStack(j + 1, (ItemStack)ItemStack.fromNbt(this.getRegistryManager(), nbtCompound).orElse(ItemStack.EMPTY));
-                }
+            NbtCompound nbtCompound = nbtList.getCompound(i);
+            int j = nbtCompound.getByte("Slot") & 255;
+            if (j < 9) {
+                this.items.setStack(j, (ItemStack)ItemStack.fromNbt(this.getRegistryManager(), nbtCompound).orElse(ItemStack.EMPTY));
             }
-        this.inventory.markDirty();
+        }
     }
 
     @Override
     protected void dropInventory() {
-        if (this.hasSword()){
-            ItemStack itemStack = new ItemStack(Items.IRON_SWORD);
-            this.dropStack(itemStack);
-        }
-        if (this.hasBackpack()){
-            ItemStack itemStack = new ItemStack(Items.CHEST);
-            this.dropStack(itemStack);
-        }
-        for (int i = 0; i < this.inventory.size(); ++i) {
-            ItemStack itemStack = this.inventory.getStack(i);
+        for (int i = 0; i < this.items.size(); ++i) {
+            ItemStack itemStack = this.items.getStack(i);
             if (!itemStack.isEmpty() && !EnchantmentHelper.hasAnyEnchantmentsWith(itemStack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP)) {
                 this.dropStack(itemStack);
             }
         }
-
     }
 
 
     @Override
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        setBackpack(false);
         setSitting(false);
         return super.initialize(world, difficulty, spawnReason, entityData);
     }
@@ -413,11 +470,11 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
 
     @Override
     public SimpleInventory getInventory() {
-        return this.inventory;
+        return this.items;
     }
     public StackReference getStackReference(int mappedIndex) {
         int i = mappedIndex - 300;
-        return i >= 0 && i < this.inventory.size() ? StackReference.of(this.inventory, i) : super.getStackReference(mappedIndex);
+        return i >= 0 && i < this.items.size() ? StackReference.of(this.items, i) : super.getStackReference(mappedIndex);
     }
 
     @Override
@@ -428,5 +485,12 @@ public class MinionEntity extends TameableEntity implements InventoryOwner, Exte
     @Override
     public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         return new MinionScreenHandler(syncId,playerInventory,this);
+    }
+
+    @Override
+    public void onInventoryChanged(Inventory sender) {
+        if (!this.getWorld().isClient) {
+            this.dataTracker.set(ARMOR,sender.getStack(10));
+        }
     }
 }
