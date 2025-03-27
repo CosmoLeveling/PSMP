@@ -29,7 +29,7 @@ public class PSMP implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(SpawnMobPayload.ID, SpawnMobPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(ChangeSizePayload.ID, ChangeSizePayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(FertilizePayload.ID, FertilizePayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(PhasePayload.ID, PhasePayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(InvisibilityPayload.ID, InvisibilityPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(WarpPayload.ID, WarpPayload.CODEC);
 
 		//Entity Attributes

@@ -1,11 +1,8 @@
 package com.cosmo.psmp.event;
 
 import com.cosmo.psmp.PSMPAttachmentTypes;
-import com.cosmo.psmp.commands.arguments.AbilityArgumentType;
-import com.cosmo.psmp.entities.custom.MinionEntity;
 import com.cosmo.psmp.networking.*;
 import com.cosmo.psmp.util.ModCustomAttachedData;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -14,12 +11,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.Objects;
 
 import static com.cosmo.psmp.PSMPAttachmentTypes.ABILITIES;
 
@@ -51,17 +43,34 @@ public class KeyInputHandler {
     ));
     public static void registerKeyInputs() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (Ability1.wasPressed()) {
-                cast_ability(0,client);
-            }
-            while (Ability2.wasPressed()) {
-                cast_ability(1,client);
-            }
-            while (Ability3.wasPressed()) {
-                cast_ability(2,client);
-            }
-            while (Ability4.wasPressed()) {
-                cast_ability(3,client);
+            if (client.player!= null) {
+                if (client.player.isSneaking()) {
+                    if (Ability1.wasPressed()) {
+                        cast_ability(0, client);
+                    }
+                    if (Ability2.wasPressed()) {
+                        cast_ability(1, client);
+                    }
+                    if (Ability3.wasPressed()) {
+                        cast_ability(2, client);
+                    }
+                    if (Ability4.wasPressed()) {
+                        cast_ability(3, client);
+                    }
+                } else {
+                    if (Ability1.isPressed()) {
+                        cast_ability(0, client);
+                    }
+                    if (Ability2.isPressed()) {
+                        cast_ability(1, client);
+                    }
+                    if (Ability3.isPressed()) {
+                        cast_ability(2, client);
+                    }
+                    if (Ability4.isPressed()) {
+                        cast_ability(3, client);
+                    }
+                }
             }
         });
     }
@@ -94,8 +103,8 @@ public class KeyInputHandler {
             ClientPlayNetworking.send(new ChangeSizePayload(client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot), slot));
         } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("fertilize")) {
             ClientPlayNetworking.send(new FertilizePayload(client.player.getBlockPos()));
-        } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("phase")) {
-            ClientPlayNetworking.send(new PhasePayload(true));
+        } else if (client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).contains("invisibility")) {
+            ClientPlayNetworking.send(new InvisibilityPayload());
         } else if (client.player.getAttached(ABILITIES).stringList().get(slot).contains("warp")) {
             ClientPlayNetworking.send(new WarpPayload());
         }

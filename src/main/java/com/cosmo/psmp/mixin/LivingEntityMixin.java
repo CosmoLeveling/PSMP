@@ -18,7 +18,7 @@ public abstract class LivingEntityMixin {
 
 	@Inject(method = "updatePotionVisibility", at = @At("HEAD"),cancellable = true)
 	private void hasSplit(CallbackInfo ci){
-		if(!this.hasStatusEffect(null)&this.hasStatusEffect(PSMPEffects.PHASE)){
+		if(!this.hasStatusEffect(null)&this.hasStatusEffect(PSMPEffects.TRUE_INVISIBILITY)){
 			ci.cancel();
 		}
 	}

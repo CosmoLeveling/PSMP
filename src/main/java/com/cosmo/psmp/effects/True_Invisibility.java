@@ -10,21 +10,13 @@ import net.minecraft.world.World;
 
 import static com.cosmo.psmp.PSMPAttachmentTypes.ENTITIES;
 
-public class PhaseEffect extends StatusEffect {
-    protected PhaseEffect(StatusEffectCategory category, int color) {
+public class True_Invisibility extends StatusEffect {
+    protected True_Invisibility(StatusEffectCategory category, int color) {
         super(category, color);
     }
     @Override
     public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
-            if (entity.getStatusEffect(PSMPEffects.PHASE).getDuration() > 1) {
-                Vec3d lookDir = entity.getRotationVec(1f);
-                entity.setVelocity(lookDir.x, lookDir.y, lookDir.z);
-                if (entity instanceof PlayerEntity) {
-                    entity.noClip = true;
-                    entity.setOnGround(false);
-                }
-            } else {
-                entity.setInvulnerable(false);
+            if (!(entity.getStatusEffect(PSMPEffects.TRUE_INVISIBILITY).getDuration() > 1)) {
                 syncList(entity, 2);
             }
         return true;
@@ -37,7 +29,6 @@ public class PhaseEffect extends StatusEffect {
 
     @Override
     public void onApplied(LivingEntity entity, int amplifier) {
-        entity.setInvulnerable(true);
         syncList(entity,1);
     }
 

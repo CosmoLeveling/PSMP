@@ -8,7 +8,7 @@ public enum AbilityEnum implements StringIdentifiable {
     summon_minion("summon_minion","Summon Minion"),
     change_size("grow_size", "Grow Size"),
     fertilize("fertilize", "Fertilize"),
-    phase("phase", "Phase"),
+    invisibility("invisibility", "Invisibility"),
     copy("copy","Copy"),
     warp("warp", "Warp");
 

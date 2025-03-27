@@ -207,30 +207,25 @@ public class MinionEntity extends TameableEntity implements SmartBrainOwner<Mini
     }
     public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
         if (!(target instanceof CreeperEntity) && !(target instanceof GhastEntity) && !(target instanceof ArmorStandEntity)) {
-            if (target instanceof WolfEntity) {
-                WolfEntity wolfEntity = (WolfEntity)target;
+            if (target instanceof WolfEntity wolfEntity) {
                 return !wolfEntity.isTamed() || wolfEntity.getOwner() != owner;
             } else {
-                if (target instanceof PlayerEntity) {
-                    PlayerEntity playerEntity = (PlayerEntity)target;
-                    if (owner instanceof PlayerEntity) {
-                        PlayerEntity playerEntity2 = (PlayerEntity)owner;
+                if (target instanceof PlayerEntity playerEntity) {
+                    if (owner instanceof PlayerEntity playerEntity2) {
                         if (!playerEntity2.shouldDamagePlayer(playerEntity)) {
                             return false;
                         }
                     }
                 }
 
-                if (target instanceof AbstractHorseEntity) {
-                    AbstractHorseEntity abstractHorseEntity = (AbstractHorseEntity)target;
+                if (target instanceof AbstractHorseEntity abstractHorseEntity) {
                     if (abstractHorseEntity.isTame()) {
                         return false;
                     }
                 }
 
                 boolean var10000;
-                if (target instanceof TameableEntity) {
-                    TameableEntity tameableEntity = (TameableEntity)target;
+                if (target instanceof TameableEntity tameableEntity) {
                     if (tameableEntity.isTamed()) {
                         var10000 = false;
                         return var10000;

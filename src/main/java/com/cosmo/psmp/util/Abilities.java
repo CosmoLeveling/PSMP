@@ -1,7 +1,6 @@
 package com.cosmo.psmp.util;
 
 import com.cosmo.psmp.PSMP;
-import com.cosmo.psmp.PSMPAttachmentTypes;
 import com.cosmo.psmp.effects.PSMPEffects;
 import com.cosmo.psmp.entities.PSMPEntities;
 import com.cosmo.psmp.networking.*;
@@ -13,18 +12,15 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
-import java.util.List;
 import java.util.Objects;
 
 import static com.cosmo.psmp.PSMPAttachmentTypes.ABILITIES;
@@ -113,11 +109,11 @@ public class Abilities {
             });
         }));
 
-        //Phase
-        ServerPlayNetworking.registerGlobalReceiver(PhasePayload.ID,(((phasePayload, context) -> {
+        //Invisibility
+        ServerPlayNetworking.registerGlobalReceiver(InvisibilityPayload.ID,(((invisibilityPayload, context) -> {
             context.server().execute(() -> {
                 PlayerEntity entity = context.player();;
-                entity.addStatusEffect(new StatusEffectInstance(PSMPEffects.PHASE,3,1,false,false));
+                entity.addStatusEffect(new StatusEffectInstance(PSMPEffects.TRUE_INVISIBILITY,3,1,false,false));
             });
         })));
 
