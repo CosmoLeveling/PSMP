@@ -79,7 +79,6 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
     }
     @Override
     protected void start(T entity) {
-        PSMP.LOGGER.info("Start");
         if(currentTarget!=null) {
             BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(currentTarget, (Float) this.speedModifier.apply(entity, Vec3d.of(currentTarget)), 0));
         } else {
@@ -89,7 +88,6 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
 
     @Override
     protected void stop(T entity) {
-        PSMP.LOGGER.info("Stopped");
         World serverWorld = entity.getWorld();
         if(currentTarget!=null) {
             BlockState blockState = serverWorld.getBlockState(this.currentTarget);

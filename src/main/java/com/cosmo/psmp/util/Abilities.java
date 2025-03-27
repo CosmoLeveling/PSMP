@@ -124,7 +124,6 @@ public class Abilities {
         //Fertilize
         ServerPlayNetworking.registerGlobalReceiver(FertilizePayload.ID, (((fertilizePayload, context) -> {
             context.server().execute(() -> {
-                PSMP.LOGGER.info("Start");
                 PlayerEntity player = context.player();
                 World world = player.getWorld();
                 BlockPos pos = player.getBlockPos();
@@ -136,7 +135,6 @@ public class Abilities {
                         }
                     }
                 }
-                PSMP.LOGGER.info("End");
             });
         })));
         //Warp
