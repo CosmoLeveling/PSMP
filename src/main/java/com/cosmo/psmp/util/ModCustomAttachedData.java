@@ -9,12 +9,13 @@ import net.minecraft.network.codec.PacketCodecs;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ModCustomAttachedData(List<String> stringList) {
+public record ModCustomAttachedData(List<String> stringList,List<Integer> Cooldowns) {
     // Codecs are used to serialize and deserialize data to different formats.
     // We build a codec here to tell it how to turn our ModCustomAttachedData object into Nbt, json, etc
     // https://docs.fabricmc.net/develop/codecs
     public static Codec<ModCustomAttachedData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.listOf().fieldOf("stringList").forGetter(ModCustomAttachedData::stringList) // our object just has a list of floats
+            Codec.STRING.listOf().fieldOf("stringList").forGetter(ModCustomAttachedData::stringList),
+            Codec.INT.listOf().fieldOf("cooldowns").forGetter(ModCustomAttachedData::Cooldowns)// our object just has a list of floats
     ).apply(instance, ModCustomAttachedData::new)); // all the values we defined above are passed to the factory method we reference here
     // SomeClass::new is a reference to a constructor. so in this case the list of floats is passed to the constructor
 
@@ -26,7 +27,7 @@ public record ModCustomAttachedData(List<String> stringList) {
 
     // A default value we can use as an "empty" or reset data component
     // it uses List.of() which creates an empty, immutable list.
-    public static ModCustomAttachedData DEFAULT = new ModCustomAttachedData(List.of("None","None","None","None"));
+    public static ModCustomAttachedData DEFAULT = new ModCustomAttachedData(List.of("None","None","None","None"),List.of(0,0,0,0));
 
     // helper method for adding values and returning a new attached data object
     // This ensures that when we add things, we are provided the new component to set
@@ -35,18 +36,21 @@ public record ModCustomAttachedData(List<String> stringList) {
     public ModCustomAttachedData setString(Integer slot,String value) {
         ArrayList<String> newStringList = new ArrayList<>(stringList);
         newStringList.set(slot,value);
-        return new ModCustomAttachedData(List.copyOf(newStringList)); // makes the list immutable to prevent accidental modification
+        return new ModCustomAttachedData(List.copyOf(newStringList),List.copyOf(Cooldowns)); // makes the list immutable to prevent accidental modification
+    }
+    public ModCustomAttachedData adjustCooldown(Integer slot,Integer amount) {
+        ArrayList<Integer> newCooldownList = new ArrayList<>(Cooldowns);
+        newCooldownList.add(slot,amount);
+        return new ModCustomAttachedData(List.copyOf(stringList),List.copyOf(newCooldownList));
+    }
+    public ModCustomAttachedData setCooldown(Integer slot,Integer amount) {
+        ArrayList<Integer> newCooldownList = new ArrayList<>(Cooldowns);
+        newCooldownList.set(slot,amount);
+        return new ModCustomAttachedData(List.copyOf(stringList),List.copyOf(newCooldownList));
     }
 
     // helper method for removing values and returning a new attached data object
     // same as above
-    public ModCustomAttachedData removeFloat(String value) {
-        if (!stringList.contains(value)) return this; // if the value isnt in the list, the list doesnt need modified.
-
-        ArrayList<String> newStringList = new ArrayList<>(stringList);
-        newStringList.removeIf(v->v==value);
-        return new ModCustomAttachedData(List.copyOf(newStringList)); // makes the list immutable to prevent accidental modification
-    }
 
     public ModCustomAttachedData clear() { // clear method, just returns the default empty component
         return DEFAULT;

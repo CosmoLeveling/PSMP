@@ -1,6 +1,7 @@
 package com.cosmo.psmp.datagen;
 
 import com.cosmo.psmp.PSMP;
+import com.cosmo.psmp.blocks.PSMPBlocks;
 import com.cosmo.psmp.commands.arguments.AbilityEnum;
 import com.cosmo.psmp.entities.PSMPEntities;
 import com.cosmo.psmp.items.PSMPItemGroups;
@@ -30,5 +31,10 @@ public class PSMPLanguageProvider extends FabricLanguageProvider {
             }
         }
         translationBuilder.add(Identifier.of("itemgroup", "psmp.ability_group"),"Abilities");
+        translationBuilder.add(PSMPItems.Corrupt_Pearl,"Corrupt Pearl");
+        translationBuilder.add(PSMPItems.Corrupt_Star,"Corrupt Star");
+        translationBuilder.add(PSMPItems.Corrupt_Echo_Shard,"Corrupt Echo Shard");
+        translationBuilder.add(PSMPBlocks.VOID_BLOCK,"Void Block");
+        translationBuilder.add(PSMPBlocks.POCKET_PORTAL,"Pocket Dim Portal Block");
     }
 }

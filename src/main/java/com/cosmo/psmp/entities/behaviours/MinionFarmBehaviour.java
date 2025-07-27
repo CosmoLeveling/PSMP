@@ -123,7 +123,7 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
             }
         }
         entity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
-        entity.getBrain().forget(MemoryModuleType.WALK_TARGET);
+    entity.getBrain().forget(MemoryModuleType.WALK_TARGET);
         this.ticksRan = 0;
         super.stop(entity);
     }
@@ -136,6 +136,6 @@ public class MinionFarmBehaviour<T extends MinionEntity> extends ExtendedBehavio
 
     @Override
     protected boolean shouldKeepRunning(ServerWorld level, T entity, long gameTime) {
-        return this.ticksRan < 10;
+        return this.ticksRan < 1;
     }
 }

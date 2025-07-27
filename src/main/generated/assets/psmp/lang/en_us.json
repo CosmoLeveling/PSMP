@@ -1,10 +1,16 @@
 {
+  "block.psmp.pocket_portal": "Pocket Dim Portal Block",
+  "block.psmp.void_block": "Void Block",
   "entity.psmp.melon_guy": "Melon Guy",
   "entity.psmp.pumpkin_guy": "Pumpkin Guy",
   "item.psmp.copy": "Copy",
+  "item.psmp.corrupt_echo_shard": "Corrupt Echo Shard",
+  "item.psmp.corrupt_pearl": "Corrupt Pearl",
+  "item.psmp.corrupt_star": "Corrupt Star",
   "item.psmp.fertilize": "Fertilize",
   "item.psmp.grow_size": "Grow Size",
   "item.psmp.invisibility": "Invisibility",
+  "item.psmp.pocket_dimension": "Pocket Dimension",
   "item.psmp.summon_minion": "Summon Minion",
   "item.psmp.warp": "Warp",
   "itemgroup.psmp.ability_group": "Abilities"

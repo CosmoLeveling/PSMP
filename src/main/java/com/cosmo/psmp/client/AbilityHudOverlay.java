@@ -38,16 +38,16 @@ public class AbilityHudOverlay implements HudRenderCallback {
                     48, 48);
             ModCustomAttachedData data = client.player.getAttachedOrElse(ABILITIES, ModCustomAttachedData.DEFAULT);
             client.player.setAttached(ABILITIES, data);
-            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(0), "None")) {
+            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(0), "None") && Objects.equals(client.player.getAttached(ABILITIES).Cooldowns().get(0),0)) {
                 draw_Ability(0, client, drawContext, 6, y - 42);
             }
-            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(1), "None")) {
+            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(1), "None") && Objects.equals(client.player.getAttached(ABILITIES).Cooldowns().get(1),0)) {
                 draw_Ability(1, client, drawContext, 26, y - 42);
             }
-            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(2), "None")) {
+            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(2), "None") && Objects.equals(client.player.getAttached(ABILITIES).Cooldowns().get(2),0)) {
                 draw_Ability(2, client, drawContext, 6, y - 22);
             }
-            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(3), "None")) {
+            if (!Objects.equals(client.player.getAttached(ABILITIES).stringList().get(3), "None") && Objects.equals(client.player.getAttached(ABILITIES).Cooldowns().get(3),0)) {
                 draw_Ability(3, client, drawContext, 26, y - 22);
             }
         }
@@ -58,7 +58,7 @@ public class AbilityHudOverlay implements HudRenderCallback {
                 drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/item/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot) + ".png"),  x, y, 0, 0, 16, 16,
                         16, 16);
             }else{
-                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/items/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).replace("_copy","") + ".png"),  x, y, 0, 0, 16, 16,
+                drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/item/abilities/" + client.player.getAttached(PSMPAttachmentTypes.ABILITIES).stringList().get(slot).replace("_copy","") + ".png"),  x, y, 0, 0, 16, 16,
                         16, 16);
                 drawContext.drawTexture(Identifier.of(PSMP.MOD_ID, "textures/gui/abilities/copy_outline.png"), x, y, 0, 0, 16, 16,
                         16, 16);

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "psmp:block/void_block"
+    }
+  }
+}
