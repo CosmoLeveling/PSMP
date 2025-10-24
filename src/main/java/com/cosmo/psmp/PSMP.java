@@ -34,12 +34,12 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.logging.Logger;
 
 public class PSMP implements ModInitializer {
 	public static final String MOD_ID = "psmp";
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final Logger LOGGER = Logger.getLogger(MOD_ID);
 	public static final TrackedDataHandler<MinionEntity.State> MINION_STATE = TrackedDataHandler.create(MinionEntity.State.PACKET_CODEC);
 	public static final Feature<DefaultFeatureConfig> PocketDimOutPortal = Registry.register(Registries.FEATURE, Identifier.of(PSMP.MOD_ID,"pocket_dim_out_portal"),new PocketDimOutPortal(DefaultFeatureConfig.CODEC));
 
