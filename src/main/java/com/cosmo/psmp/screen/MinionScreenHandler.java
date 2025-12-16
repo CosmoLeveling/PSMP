@@ -30,7 +30,6 @@ public class MinionScreenHandler extends ScreenHandler {
         this.entity = entity;
         this.inventory = entity.getInventory();
         addMinionInvo();
-        addPlayerInvo(playerInventory);
         addPlayerHotbar(playerInventory);
     }
 
